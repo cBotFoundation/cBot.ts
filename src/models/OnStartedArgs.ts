@@ -1,0 +1,5 @@
+interface OnStartedArgs 
+{
+    port: number;
+    baseUrl: string;
+}
