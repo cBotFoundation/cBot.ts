@@ -1,7 +1,8 @@
 import { DependencyManager } from '../../Dependency-manager';
+import { IBootstrapService } from '../interfaces/IBootStrapService';
 import { IService } from './IService'; // Update with the correct path to the IService interface
 
-class BootstrapService implements IService 
+class BootstrapService implements IBootstrapService 
 {
   private logger: any;
   private app: any;

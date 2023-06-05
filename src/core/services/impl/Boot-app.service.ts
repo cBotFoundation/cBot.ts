@@ -1,9 +1,7 @@
 import { Client, Intents, Interaction, Guild, GuildMember, Message } from 'discord.js';
 import { DependencyManager } from '../../Dependency-manager';
-import { IService } from '../IService';
 
-
-class BotAppService implements IService {
+class BotAppService implements BotAppService {
   private dependency: DependencyManager | undefined;
   private buttonHandlers: Map<string, (interaction: Interaction, dependency: DependencyManager | undefined) => Promise<void>>;
   private client: Client;

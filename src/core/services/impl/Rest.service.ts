@@ -2,8 +2,9 @@ import express, { Express, Request, Response, NextFunction, Router } from 'expre
 import cors from 'cors';
 import jwt, { Secret } from 'express-jwt';
 import { DependencyManager } from '../../Dependency-manager';
+import { IRestService } from '../interfaces/IRestService';
 
-class RestService {
+class RestService implements IRestService {
   private app: Express;
   private routes: Map<string, Router>;
   private currentBasePath: string;

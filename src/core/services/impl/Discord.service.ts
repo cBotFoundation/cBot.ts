@@ -1,7 +1,7 @@
-import { IService } from './IService'; // Update with the correct path to the IService interface
+import { IDiscordService } from '../interfaces/IDiscordService';
 import fs from 'fs';
 
-class DiscordService implements IService {
+class DiscordService implements IDiscordService {
   private logger: any;
   private commandInfo: any[];
   private commandHandlers: Map<string, any>;

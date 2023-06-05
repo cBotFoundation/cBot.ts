@@ -1,12 +1,12 @@
-import { IService } from './IService'; // Update with the correct path to the IService interface
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v8';
 import { DependencyManager } from '../../Dependency-manager';
+import { ICommandDeployer } from '../interfaces/ICommandDeployer';
 
 const rest = new REST({ version: '8' }).setToken(process.env.BOT_TOKEN);
 
-class CommandDeployer implements IService {
+class CommandDeployer implements ICommandDeployer {
   private logger: any;
   private discord: any;
 

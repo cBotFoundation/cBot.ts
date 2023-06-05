@@ -1,7 +1,7 @@
-import { IService } from './IService'; // Update with the correct path to the IService interface
 import log4js from "log4js";
+import { ILoggerService } from "../interfaces/ILoggerService";
 
-class LoggerService implements IService {
+class LoggerService implements ILoggerService {
   private logger: any;
 
   constructor() {
