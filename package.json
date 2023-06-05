@@ -1,0 +1,15 @@
+{
+  "name": "cbot.ts",
+  "version": "0.1.0",
+  "description": "A comprehensive chatbot framework that integrates with numerous instant messaging platforms.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "prepublish": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
