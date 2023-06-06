@@ -1,7 +1,10 @@
-import { IDiscordService } from '../interfaces/IDiscordService';
+import { IChatEngineService } from '../interfaces/IChatEngineService';
 import fs from 'fs';
 
-class DiscordService implements IDiscordService {
+
+//TODO, IMPLEMENT SLASH COMMAND BUILDER (BASE COMMAND)
+
+class DiscordService implements IChatEngineService {
   private logger: any;
   private commandInfo: any[];
   private commandHandlers: Map<string, any>;
