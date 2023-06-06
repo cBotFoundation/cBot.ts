@@ -1,4 +1,6 @@
-interface CBootConfig {
+import { Command } from "./Command";
+
+export interface CBootConfig {
     clientKey: string;
     clientId: string;
     serverId: string;
