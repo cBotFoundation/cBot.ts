@@ -14,9 +14,7 @@ class BootstrapService implements IBootstrapService
   }
 
   async init(dependency: DependencyManager): Promise<void> {
-    this.logger = dependency.get("Logger");
-    // this.app = dependency.get("BotApp");
-    // this.client = this.app.getClient();
+    this.logger = dependency.get("Config").GetLogger();
 
     //DO INITIALIZATION STUFF WHEN THE BOT HAS STARTED
     this.logger.info("Boostraping and seeding bot...");

@@ -5,14 +5,14 @@ import { DependencyManager } from '../../Dependency-manager';
 import { Command } from '../../../models/Command';
 import { CommandCallbackArgs } from '../../../models/CommandCallbackArgs';
 import { IChatEngineService } from '../interfaces/IChatEngineService';
-import { ILoggerService } from '../interfaces/ILoggerService';
+import { ILogger } from '../interfaces/ILoggerService';
 
 class ChatEngineService implements IChatEngineService {
   private dependency: DependencyManager | undefined;
   private client: Client;
-  private logger: ILoggerService;
+  private logger: ILogger;
   private discord: any;
-  private commands: Command[] = [];
+  private commands: Command[] = []; // get commands via config service!!!!
 
   constructor() {
     this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS] });
@@ -21,7 +21,7 @@ class ChatEngineService implements IChatEngineService {
 
   init(dependency: DependencyManager): void {
     this.dependency = dependency;
-    this.logger = dependency.get("Logger");
+    this.logger = dependency.get("Config").GetLogger();
     this.discord = dependency.get("Discord");
     // this.commandHandlers = this.discord.getCommands();
   }
