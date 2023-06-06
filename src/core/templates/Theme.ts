@@ -6,9 +6,8 @@ export default interface Theme {
     danger: Color
 };
 
-
-let theme: Theme = {
-    primary: "#3ba55c",
-    secondary: "#3ba55c",
-    danger: "#3ba55c"
+export let DefaultTheme: Theme = {
+    primary: "#28a745",
+    secondary: "#007bff",
+    danger: "#dc3545"
 }
