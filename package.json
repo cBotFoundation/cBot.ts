@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "ts-standard --fix && echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "prepublishOnly": "tsc",
     "lint": "ts-standard --fix"
