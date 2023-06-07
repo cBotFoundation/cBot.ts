@@ -1,5 +1,4 @@
-export interface OnStartedArgs 
-{
-    port: number;
-    baseUrl: string;
+export interface OnStartedArgs {
+  port: number
+  baseUrl: string
 }

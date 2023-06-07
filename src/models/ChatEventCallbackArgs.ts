@@ -1,4 +1,4 @@
 export interface ChatEventCallbackArgs {
-    payload: any;
-    dependency: any;
+  payload: any
+  dependency: any
 }

@@ -1,15 +1,14 @@
-import { ChatEventCallbackArgs } from "./ChatEventCallbackArgs";
-
+import { ChatEventCallbackArgs } from './ChatEventCallbackArgs'
 
 export class ChatEvent {
-  handlerName: string;
-  callback: (args: ChatEventCallbackArgs) => void;
+  handlerName: string
+  callback: (args: ChatEventCallbackArgs) => void
 
-  constructor(
+  constructor (
     commandName: string,
-    callback: (args: ChatEventCallbackArgs) => void,
+    callback: (args: ChatEventCallbackArgs) => void
   ) {
-    this.handlerName = commandName;
-    this.callback = callback;
+    this.handlerName = commandName
+    this.callback = callback
   }
 }
