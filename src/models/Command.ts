@@ -16,4 +16,9 @@ export class Command {
     this.callback = callback;
     this.buttons = buttons || []; // If buttons are not provided, initialize with an empty array.
   }
+
+  addButtons(buttons:dBotButton[]) : void
+  {
+    this.buttons = this.buttons.concat(buttons);
+  }
 }

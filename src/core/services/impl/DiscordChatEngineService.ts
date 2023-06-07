@@ -5,9 +5,11 @@ import { DependencyManager } from '../../Dependency-manager';
 import { Command } from '../../../models/Command';
 import { CommandCallbackArgs } from '../../../models/CommandCallbackArgs';
 import { IChatEngineService } from '../interfaces/IChatEngineService';
-import { ILogger } from '../interfaces/ILoggerService';
+import { ButtonHandlerArgs } from '../../../models/ButtonHandlerArgs';
+import { ILogger } from '../interfaces/ILogger';
+import { XulLogger } from '../../utils/xul-logger';
 
-class ChatEngineService implements IChatEngineService {
+export class DiscordChatEngineService implements IChatEngineService {
   private dependency: DependencyManager | undefined;
   private client: Client;
   private logger: ILogger;
@@ -15,8 +17,9 @@ class ChatEngineService implements IChatEngineService {
   private commands: Command[] = []; // get commands via config service!!!!
 
   constructor() {
+    this.logger = new XulLogger();//TODO FETCH FROM CONFIG...
     this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS] });
-    this.login(process.env.BOT_TOKEN);
+    // this.login(process.env.BOT_TOKEN); TODO: FIX
   }
 
   init(dependency: DependencyManager): void {
@@ -37,7 +40,7 @@ class ChatEngineService implements IChatEngineService {
 
   sendMessage(channelId: string, message: string): void {
     const channel = this.client.channels.cache.get(channelId);
-    if (channel.isText()) {
+    if (channel?.isText()) {
       channel.send(message);
     }
   }
@@ -90,17 +93,18 @@ class ChatEngineService implements IChatEngineService {
   }
 
   handleCommand(interaction: Interaction){
-    const command = this.commands.find(c => c.commandName === interaction.commandName);
-    if (command) {
-      const args: CommandCallbackArgs = { ...interaction };
-      command.callback(args);
-    }
+    //fix this...
+    // const command = this.commands.find(c => c.commandName === interaction.commandName);
+    // if (command) {
+    //   const args: CommandCallbackArgs = { ...interaction };
+    //   command.callback(args);
+    // }
   }
   
   handleButton(interaction: Interaction)
   {
     // Get the id of the button interaction
-    const buttonId = interaction.customId;
+    const buttonId = interaction.id;
     const suspectUserId = interaction.user.id;
     const owner = interaction.member?.user.id;
 
@@ -115,7 +119,14 @@ class ChatEngineService implements IChatEngineService {
       const button = command.buttons.find(b => b.id === buttonId);
       
       if (button) {
-        const args: ButtonHandlerArgs = { ...interaction };
+        const args: ButtonHandlerArgs = {
+          ...interaction,
+          ownerId: '',
+          clientId: '',
+          extra: {
+            args: undefined
+          }
+        };
         button.handler(args);
         break; // Exit the loop once we've found and handled the button
       }
@@ -146,5 +157,3 @@ class ChatEngineService implements IChatEngineService {
     // Perform periodic tasks
   }
 }
-
-export { ChatEngineService };

@@ -2,7 +2,7 @@ import { CBootConfig } from "../../../models/CBootConfig";
 import { Command } from "../../../models/Command";
 import { DependencyManager } from "../../Dependency-manager";
 import { IConfigService } from "../interfaces/IConfigService";
-import { ILogger } from "../interfaces/ILoggerService";
+import { ILogger } from "../interfaces/ILogger";
 
 export class ConfigService implements IConfigService {
   private configuration: CBootConfig | undefined;

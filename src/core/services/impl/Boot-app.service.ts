@@ -2,6 +2,7 @@ import { Client } from 'discord.js';
 import { DependencyManager } from '../../Dependency-manager';
 import { IChatEngineService } from '../interfaces/IChatEngineService';
 import { IBotAppService } from '../interfaces/IBotAppService';
+import { DiscordChatEngineService } from './DiscordChatEngineService';
 
 class BotAppService implements IBotAppService {
   private dependency: DependencyManager | undefined;
@@ -9,6 +10,7 @@ class BotAppService implements IBotAppService {
 
   constructor() 
   {
+    this.chatEngine = new DiscordChatEngineService();//TESTING ONLY THIS MUS BE RETRIVED FROM A FACTORY
   }
 
   async init(dependency: DependencyManager): Promise<void> {

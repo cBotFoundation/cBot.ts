@@ -1,5 +1,6 @@
 import { IService } from "../IService";
 
+//TODO: CREATE ALL ARGUMENTS AS REGISTRABLE LAMDAS
 export interface IChatEngineService extends IService {
   //Actions
   login(token: string): void;

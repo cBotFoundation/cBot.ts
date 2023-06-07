@@ -1,4 +1,4 @@
-import { ILogger } from "../core/services/interfaces/ILoggerService";
+import { ILogger } from "../core/services/interfaces/ILogger";
 import { Command } from "./Command";
 
 export interface CBootConfig {

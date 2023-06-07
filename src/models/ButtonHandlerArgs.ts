@@ -1,4 +1,4 @@
-interface ButtonHandlerArgs {
+export interface ButtonHandlerArgs {
     id: string;
     ownerId: string;
     clientId: string;
