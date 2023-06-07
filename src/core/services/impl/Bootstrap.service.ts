@@ -1,6 +1,5 @@
 import { DependencyManager } from '../../Dependency-manager';
-import { IBootstrapService } from '../interfaces/IBootStrapService';
-import { IService } from './IService'; // Update with the correct path to the IService interface
+import { IBootstrapService } from '../interfaces/IBootstrapService';
 
 class BootstrapService implements IBootstrapService 
 {
@@ -14,11 +13,10 @@ class BootstrapService implements IBootstrapService
   }
 
   async init(dependency: DependencyManager): Promise<void> {
-    this.logger = dependency.get("Logger");
-    this.app = dependency.get("BotApp");
-    this.client = this.app.getClient();
+    // this.logger = dependency.get("Config").GetLogger();
 
-    this.logger.info("Boostraping and seeding bot...");
+    //DO INITIALIZATION STUFF WHEN THE BOT HAS STARTED
+    // this.logger.info("Boostraping and seeding bot...");
   }
 
   async dispose(): Promise<void> {

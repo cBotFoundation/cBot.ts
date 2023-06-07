@@ -1,3 +1,5 @@
+import { dBotButton } from "./dBotButton";
+
 class dBotCard {
     title: string;
     content: string;

@@ -1,9 +1,7 @@
 import { IService } from "../IService";
+import { IChatEngineService } from "./IChatEngineService";
 
 export interface IBotAppService extends IService {
-    startBot(): void;
-    stopBot(): void;
-    onReady(callback: () => void): void;
-    onMessage(callback: (message: string) => void): void;
+    getCurrentChatEngine(): IChatEngineService;
   }
   

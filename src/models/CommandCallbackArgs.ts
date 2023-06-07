@@ -1,4 +1,7 @@
+import { Message } from "discord.js";
+import { Interaction, InteractionResponseType, InteractionType } from "discord.js";
+
 export interface CommandCallbackArgs {
-    clientId: string;
     interaction: any; // Discord only
+    dependency: any;
 }

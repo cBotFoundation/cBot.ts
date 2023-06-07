@@ -1,3 +1,4 @@
+import { ILogger } from "../core/services/interfaces/ILogger";
 import { Command } from "./Command";
 
 export interface CBootConfig {
@@ -8,4 +9,5 @@ export interface CBootConfig {
     locale: any;
     theme: any;
     commands: Command[];
+    logger: ILogger
   }
