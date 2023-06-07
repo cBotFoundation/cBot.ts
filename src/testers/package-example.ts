@@ -10,13 +10,12 @@ import { Message } from "discord.js";
 
 // Main Example usage
 export function cBotPackageTest() {
-
   //Configure command handlers
   const helloWorldCommandHanlder = (args: CommandCallbackArgs): void => {
     console.log('Command called: handler;', args.interaction);
 
     //XANAX: todo: return the main UI command body as platform specific
-    args.interaction.reply({ content: `Verify posted in current channel`, ephemeral: true }); //discord specific remove...
+    args.interaction.reply({ content: `Hello world command called!!!`, ephemeral: true }); //discord specific remove...
   };
 
   //Configure actions on the command like buttons (emojis or platform implemented)
