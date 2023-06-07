@@ -6,7 +6,7 @@ import { ILogger } from '../interfaces/ILogger'
 
 export class ConfigService implements IConfigService {
   private configuration: CBootConfig | undefined
-  private readonly commands: Command[]
+  commands: never[]
 
   constructor () {
     // this.configuration = {};
@@ -26,7 +26,7 @@ export class ConfigService implements IConfigService {
   }
 
   getCommands (): Command[] {
-    return this.commands
+    return this.commands;
   }
 
   // ISERVICE IMPL
