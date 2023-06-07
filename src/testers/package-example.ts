@@ -46,11 +46,11 @@ export function cBotPackageTest () {
   const helloWorldCommand: Command = new Command(
     'hello-world',
     'hello world command description :)',
+    [],// No arguments for this example...
     [waveButton, ownerOnlyButton],
-    helloWorldCommandHanlder
+    helloWorldCommandHanlder,
   )
 
-  helloWorldCommand.addButtons()
   const myLogger = new XulLogger()
 
   const mockCBootConfig: CBootConfig = {
