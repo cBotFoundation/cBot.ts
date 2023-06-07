@@ -1,6 +1,5 @@
-import { IService } from "../IService";
 
-export interface ILoggerService extends IService 
+export interface ILogger
 {
     info(message: string): void;
     warn(message: string): void;

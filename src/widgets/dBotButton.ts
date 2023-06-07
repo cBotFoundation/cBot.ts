@@ -1,26 +1,23 @@
+import { ButtonHandlerArgs } from "../models/ButtonHandlerArgs";
 
-function buttonHandler(args: ButtonHandlerArgs): void {
-    // args.ownerId (the interaction owner)
-    // args.clientId (current owner interaction)
-    // args.extra.args // for some buttons that send custom payload values
-    // Ideally, the handlers should be called here
-  }
+export class dBotButton {
+  id: string;
+  handlerName: string;
+  buttonText: string;
+  onlyOwnerInteractable: boolean;
+  handler: (args: ButtonHandlerArgs) => void;
   
-class dBotButton {
-    handlerName: string;
-    buttonText: string;
-    onlyOwnerInteractable: boolean;
-    handler: (args: ButtonHandlerArgs) => void;
-  
-    constructor(
-      handlerName: string,
-      buttonText: string,
-      handler: (args: ButtonHandlerArgs) => void,
-      onlyOwnerInteractable: boolean
-    ) {
-      this.handlerName = handlerName;
-      this.buttonText = buttonText;
-      this.handler = handler;
-      this.onlyOwnerInteractable = onlyOwnerInteractable;
-    }
+  constructor(
+    id: string,
+    handlerName: string,
+    buttonText: string,
+    handler: (args: ButtonHandlerArgs) => void,
+    onlyOwnerInteractable: boolean
+  ) {
+    this.id = id;
+    this.handlerName = handlerName;
+    this.buttonText = buttonText;
+    this.handler = handler;
+    this.onlyOwnerInteractable = onlyOwnerInteractable;
   }
+}
