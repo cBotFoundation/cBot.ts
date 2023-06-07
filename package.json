@@ -22,8 +22,11 @@
     "express": "^4.17.1",
     "express-jwt": "^8.4.1",
     "googleapis": "^92.0.0",
-    "mongoose": "^7.2.2",
     "log4js": "^6.9.1",
+    "mongoose": "^7.2.2",
     "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "ts-standard": "^12.0.2"
   }
 }
