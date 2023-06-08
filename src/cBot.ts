@@ -1,17 +1,18 @@
-import { DependencyManager } from "./core/Dependency-manager";
-import { CBootConfig } from "./models/CBootConfig";
-import { OnStartedArgs } from "./models/OnStartedArgs";
+import { DependencyManager } from './core/Dependency-manager'
+import { CBootConfig } from './models/CBootConfig'
+import { OnStartedArgs } from './models/OnStartedArgs'
 
+export class cBot {
+  static startBot (initArgs: CBootConfig, callback: (args: OnStartedArgs) => void): void {
 
-export class cBot 
-{
+    const appInstance = new DependencyManager()
+    appInstance.initialize()
 
-  static startBot(initArgs: CBootConfig, callback: (args: OnStartedArgs) => void): void {
+    const configService = appInstance.get('Config');
+    configService.setConfiguration(initArgs);
 
-    const appInstance = new DependencyManager();
-    appInstance.initialize();
-
+    
     // Start the bot
-    callback({ port: 5151, baseUrl: "dummy.com" }); // Replace 8080 with the actual port
+    callback({ port: initArgs.port, baseUrl: 'localhost' }) // Replace 8080 with the actual port
   }
 }

@@ -1,24 +1,30 @@
 
-import { dBotButton } from "../widgets/dBotButton";
-import { CommandCallbackArgs } from "./CommandCallbackArgs";
+import { dBotButton } from '../widgets/dBotButton'
+import { CommandArg } from './CommandArg'
+import { CommandCallbackArgs } from './CommandCallbackArgs'
 
 export class Command {
-  commandName: string;
-  callback: (args: CommandCallbackArgs) => void;
-  buttons: dBotButton[];
+  commandName: string
+  commandDescription: string
+  callback: (args: CommandCallbackArgs) => void
+  buttons: dBotButton[]
+  arguments: CommandArg[]
 
-  constructor(
+  constructor (
     commandName: string,
+    commandDescription: string,
+    commandArgs: CommandArg[],
+    buttons: dBotButton[],
     callback: (args: CommandCallbackArgs) => void,
-    buttons?: dBotButton[]
   ) {
-    this.commandName = commandName;
-    this.callback = callback;
-    this.buttons = buttons || []; // If buttons are not provided, initialize with an empty array.
+    this.commandName = commandName
+    this.commandDescription = commandDescription
+    this.arguments = commandArgs
+    this.buttons = buttons
+    this.callback = callback
   }
 
-  addButtons(buttons:dBotButton[]) : void
-  {
-    this.buttons = this.buttons.concat(buttons);
+  addButtons (buttons: dBotButton[]): void {
+    this.buttons = this.buttons.concat(buttons)
   }
 }
