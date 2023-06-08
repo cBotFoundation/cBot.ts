@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "test": "ts-standard --fix && echo \"Error: no test specified\" && exit 1",
+    "test": "ts-standard --fix && mocha",
     "build": "tsc",
     "prepublishOnly": "tsc",
     "lint": "ts-standard --fix"
@@ -28,6 +28,7 @@
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
+    "mocha": "^10.2.0",
     "ts-standard": "^12.0.2"
   }
 }
