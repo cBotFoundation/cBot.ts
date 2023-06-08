@@ -1,50 +1,85 @@
-import { Client, SlashCommandBuilder} from 'discord.js'
 import { DependencyManager } from '../../Dependency-manager'
 import { IChatEngineService } from '../interfaces/IChatEngineService'
 import { IBotAppService } from '../interfaces/IBotAppService'
-import { DiscordChatEngineService } from './DiscordChatEngineService'
 import { IConfigService } from '../interfaces/IConfigService'
 import { Command } from '../../../models/Command'
 import { CommandArgType } from '../../../models/CommandArgTypes'
 import { ILogger } from '../interfaces/ILogger'
 import { XulLogger } from '../../utils/xul-logger'
 import { CBootConfig } from '../../../models/CBootConfig'
-// const rest = new REST({ version: '8' }).setToken(process.env.BOT_TOKEN)
 
-class BotAppService implements IBotAppService {
+//DISCORD SPECIFIC IMPORTS
+import { DiscordChatEngineService } from './DiscordChatEngineService'
+import { SlashCommandBuilder } from '@discordjs/builders'
+import { Client } from 'discord.js'
+import { REST } from '@discordjs/rest'
+import { Routes } from 'discord-api-types/v9'
+
+export class BotAppService implements IBotAppService {
   private logger: ILogger
+  private rest!: REST
   private dependency: DependencyManager | undefined
-  private configService: IConfigService | undefined
-  private statupBotConfig: CBootConfig | undefined
+  private bootConfig: CBootConfig | undefined
   private readonly chatEngine: IChatEngineService
 
   constructor () {
     this.logger = new XulLogger()//TESTING ONLY REMOVE!!!
     this.chatEngine = new DiscordChatEngineService()// TESTING ONLY THIS MUS BE RETRIVED FROM SOME ABSTRACT FACTORY
+
+    //TODO: BIG WTF, FIX THIIS ISSUE REALTED TO THE INTERFACES for example this.deployChatCommands does not exist in the 'this' that's why you have to bind it,
+    //See original dependency manager impl and check the bind methods used
+    this.init = this.init.bind(this) 
+
   }
 
   async init (dependency: DependencyManager): Promise<void> {
     this.dependency = dependency
-    this.configService = dependency.get("Config")
-    this.statupBotConfig = this.configService?.getConfiguration();
+    this.bootConfig = dependency.getConfiguration()
+    this.chatEngine.init(dependency);//TODO: MOCKING  PROPUSES ONLY 
+    this.rest = new REST({ version: '8' }).setToken(this.bootConfig.clientKey)
 
-    if (this.statupBotConfig?.deploy === true) {
-      this.deploy()
+    //Deploy commands to be visible on the server slash commands list (only needed once atleast on discord)
+    if (this.bootConfig.deploy) {
+      await this.deployChatCommands()
     } else {
       this.logger.warn("Starting bot without deploying commands....")
     }
   }
 
+  async deployChatCommands (): Promise<void> {
+    try {
+
+      this.logger.info('Started to deploying application (/) commands or any underyling command deployment.')
+      //Discord js slash builder
+      const baseCommands = this.bootConfig?.commands
+      const deployCommands = baseCommands?.map((cmd) => {
+        return this.buildDiscordSlashCommand(cmd).toJSON();
+      })
+      
+      //Configure the command handlers for the current chat engine
+      this.chatEngine.useCommands(baseCommands!)
+      
+      //TODO: FIX THIS BELOW (re implemnet this call on ts) !!!!
+      await this.rest.put(Routes.applicationGuildCommands(this.bootConfig!.clientId, this.bootConfig!.serverId),
+        { body: deployCommands })
+
+      this.logger.info('Successfully reloaded application (/) commands.')
+    } catch (error) {
+      this.logger.error("Cannot deploy commands due: " + error)
+    }
+  }
+
   //DISCORD Platform specific
-  buildDiscordSlashCommand(cmd: Command): string {
+  buildDiscordSlashCommand(cmd: Command): SlashCommandBuilder {
     let cmdBuilder = new SlashCommandBuilder()
       .setName(cmd.commandName)
       .setDescription(cmd.commandDescription)
 
     cmd.arguments.forEach((arg) => {
-      //todo: improve this thing below (avoid big ass switch cases)
+      //TODO: improve this thing below (avoid big ass switch cases)
       switch (arg.argType) {
         case CommandArgType.NUMBER:
+
           cmdBuilder.addNumberOption(option => option.setName(arg.argName).setDescription(arg.description))
           break
 
@@ -56,33 +91,13 @@ class BotAppService implements IBotAppService {
         default:
           this.logger.error('Command argument type not implemented:' + arg.argType.toString())
       }
+
+      this.logger.warn(`Command builder: added ${arg.argType} option to the command, arg name: ${arg.argName}`)
     })
 
-   return JSON.parse(cmdBuilder)
+   this.logger.warn(`Command builder: building discord slash command for: ${ cmd.commandName }`)
+   return cmdBuilder
   } 
-
-  deploy(): void {
-    try {
-
-      this.logger.info('Started refreshing application (/) commands.')
-      //Discord js slash builder
-      const baseCommands = this.configService?.getCommands()
-      const deployCommands = baseCommands?.map((cmd) => {
-        return this.buildDiscordSlashCommand(cmd)
-      })
-      
-      //Configure the command handlers for the current chat engine
-      this.chatEngine.useCommands(baseCommands!);
-      
-      //TODO: FIX THIS BELOW (re implemnet this call on ts) !!!!
-      await rest.put(Routes.applicationGuildCommands(this.statupBotConfig?.clientId, this.statupBotConfig?.serverId),
-        { body: deployCommands })
-
-      this.logger.info('Successfully reloaded application (/) commands.')
-    } catch (error) {
-      this.logger.error("Cannot deploy commands due: " + error)
-    }
-  }
 
   getCurrentChatEngine (): IChatEngineService {
     return this.chatEngine
@@ -96,5 +111,3 @@ class BotAppService implements IBotAppService {
     // Perform periodic tasks
   }
 }
-
-export { BotAppService }

@@ -7,15 +7,56 @@ import { dBotButton } from '../widgets/dBotButton'
 import { ButtonHandlerArgs } from '../models/ButtonHandlerArgs'
 import { XulLogger } from '../core/utils/xul-logger'
 import { Message } from 'discord.js'
+import { env } from '../../env'
 
-// Main Example usage
-export function cBotPackageTest () {
+//This is the example for the readme (update it first here then updated it in the README.md)
+function ReadmeHelloWorld () {
+
+   // Configure command handlers
+   const helloWorldCommandHanlder = (args: CommandCallbackArgs): void => {
+      //DISCORD specific reply...
+      args.interaction.reply({ content: "Hello world uwu", ephemeral: false });
+  }
+
+  const helloWorldCommand: Command = new Command(
+    'hello-world',
+    'hello world command description :)',
+    [],// No arguments for this example...
+    [],// No buttons for this example ()
+    helloWorldCommandHanlder,
+  )
+
+  const myLogger = new XulLogger()
+
+  const mockCBootConfig: CBootConfig = {
+    port: env.PORT,
+    deploy: env.RUN_COMMAND_DEPLOYER,
+    clientKey: env.BOT_TOKEN,
+    clientId: env.CLIENT_ID,
+    serverId: env.GUILD_ID,
+    useImplementations: ['MockImplementation1', 'MockImplementation2'],
+    locale: 'en-US', // Assuming it's a locale string
+    theme: 'dark', // Assuming it's a theme string, replace with actual dummy value
+    commands: [helloWorldCommand], // Fill with actual dummy Commands
+    logger: myLogger
+  }
+
+  // Define the callback function to handle the bot startup
+  const onStarted = (args: OnStartedArgs) => {
+    myLogger.info('onStarted: Add Additional logic after the bot has started')
+  }
+
+  // Start the bot
+  cBot.startBot(mockCBootConfig, onStarted)
+}
+
+// Library main testing entry point (tests all in development features...)
+export function cBotPackageTest() {
+
   // Configure command handlers
   const helloWorldCommandHanlder = (args: CommandCallbackArgs): void => {
-    console.log('Command called: handler;', args.interaction)
-
-    // XANAX: todo: return the main UI command body as platform specific
-    args.interaction.reply({ content: 'Hello world command called!!!', ephemeral: true }) // discord specific remove...
+    myLogger.warn('Command called: handler:'+ args.interaction.commandName)
+    args.interaction.reply({ content: "Hello world uwu", ephemeral: false });
   }
 
   // Configure actions on the command like buttons (emojis or platform implemented)
@@ -54,9 +95,11 @@ export function cBotPackageTest () {
   const myLogger = new XulLogger()
 
   const mockCBootConfig: CBootConfig = {
-    clientKey: 'mockClientKey',
-    clientId: 'mockClientId',
-    serverId: 'mockServerId',
+    port: env.PORT,
+    deploy: env.RUN_COMMAND_DEPLOYER,
+    clientKey: env.BOT_TOKEN,
+    clientId: env.CLIENT_ID,
+    serverId: env.GUILD_ID,
     useImplementations: ['MockImplementation1', 'MockImplementation2'],
     locale: 'en-US', // Assuming it's a locale string
     theme: 'dark', // Assuming it's a theme string, replace with actual dummy value
