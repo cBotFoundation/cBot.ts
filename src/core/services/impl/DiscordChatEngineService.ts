@@ -1,6 +1,6 @@
 // File: ChatEngineService.ts
 
-import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType } from 'discord.js'
+import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType, CommandInteraction } from 'discord.js'
 import { DependencyManager } from '../../Dependency-manager'
 import { Command } from '../../../models/Command'
 import { CommandCallbackArgs } from '../../../models/CommandCallbackArgs'
@@ -9,11 +9,11 @@ import { ButtonHandlerArgs } from '../../../models/ButtonHandlerArgs'
 import { ILogger } from '../interfaces/ILogger'
 import { XulLogger } from '../../utils/xul-logger'
 import { CBootConfig } from '../../../models/CBootConfig'
-import { GatewayIntentBits } from 'discord-api-types/v9';
+import { GatewayIntentBits } from 'discord-api-types/v9'
 
 export class DiscordChatEngineService implements IChatEngineService {
   private dependency: DependencyManager | undefined
-  private startupConfig!: CBootConfig;
+  private bootConfig!: CBootConfig
   private readonly client: Client
   private logger: ILogger
   private commands: Command[] = []
@@ -23,7 +23,7 @@ export class DiscordChatEngineService implements IChatEngineService {
     //Initialize DISCORD client
     this.client = new Client({
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] 
-    });  
+    }) 
   }
 
   initializeDiscordListeners(): void {
@@ -124,14 +124,14 @@ export class DiscordChatEngineService implements IChatEngineService {
   init(dependency: DependencyManager): void {
 
     this.dependency = dependency
-    this.startupConfig = dependency.get('Config');
-    this.logger = this.startupConfig.logger;
+    this.bootConfig = dependency.getConfiguration()
+    this.logger = this.bootConfig.logger
 
     //Initialize discord listeners
     this.initializeDiscordListeners()
 
     //Bot login: clientkey = process.env.BOT_TOKEN (required by discord)
-    this.client.login(this.startupConfig.clientKey);
+    this.client.login(this.bootConfig.clientKey)
   }
 
   useCommands(commands: Command[]) {
@@ -156,9 +156,9 @@ export class DiscordChatEngineService implements IChatEngineService {
     // }
   }
 
-  handleCommand(interaction: Interaction) {
+  handleCommand(interaction: CommandInteraction) {
     // fix this...
-    const command = this.commands.find(c => c.commandName === interaction.toString())
+    const command = this.commands.find(c => c.commandName === interaction.commandName)
     if (command) {
       const args: CommandCallbackArgs = { interaction, dependency: this.dependency }
       command.callback(args)
@@ -198,6 +198,7 @@ export class DiscordChatEngineService implements IChatEngineService {
   }
 
   onInteractionCreate(interaction: Interaction<CacheType>): void {
+    this.logger.warn('Interaction recived:'+ interaction)
     if (interaction.isCommand()) {
       this.handleCommand(interaction)
     } else if (interaction.isButton()) {

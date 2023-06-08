@@ -1,3 +1,4 @@
+import { CBootConfig } from '../models/CBootConfig'
 import { IService } from './services/IService'
 import { coreServices } from './services/Services.module'
 import { ILogger } from './services/interfaces/ILogger'
@@ -9,10 +10,12 @@ class DependencyManager {
   private readonly intervalHooks: Array<() => void>
   private readonly disposeHooks: Array<() => Promise<void>>
   private readonly logger: ILogger
+  private bootConfig: CBootConfig 
 
-  constructor () {
+  constructor (configuration: CBootConfig) {
     this.logger = new XulLogger()// TESTING AND MOCKING ONLY REMOVE!!!!
-
+    
+    this.bootConfig = configuration;
     this.instancedServices = new Map()
     this.startHooks = []
     this.intervalHooks = []
@@ -76,6 +79,10 @@ class DependencyManager {
 
   get (name: string): any {
     return this.instancedServices.get(name)
+  }
+
+  getConfiguration (): CBootConfig  {
+    return this.bootConfig
   }
 }
 

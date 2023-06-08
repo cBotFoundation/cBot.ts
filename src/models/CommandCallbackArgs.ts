@@ -1,7 +1,7 @@
-import { CacheType, Interaction } from "discord.js";
+import { CommandInteraction } from "discord.js";
 import { DependencyManager } from "../core/Dependency-manager";
 
 export interface CommandCallbackArgs {
-  interaction: Interaction,// Discord only
+  interaction: CommandInteraction,// Discord only
   dependency: DependencyManager | undefined
 }
