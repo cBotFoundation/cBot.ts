@@ -1,9 +1,9 @@
-type Color = `#${string}`
+export type ThemeColor = `#${string}`
 
 export default interface Theme {
-  primary: Color
-  secondary: Color
-  danger: Color
+  primary: ThemeColor
+  secondary: ThemeColor
+  danger: ThemeColor
 };
 
 export const DefaultTheme: Theme = {
