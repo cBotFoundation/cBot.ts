@@ -3,5 +3,5 @@ import { IChatEngineService } from './IChatEngineService'
 
 export interface IBotAppService extends IService {
   getCurrentChatEngine: () => IChatEngineService
-  deploy: () => void
+  deploy: () => Promise<void>
 }

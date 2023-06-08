@@ -30,7 +30,7 @@ const mockCBootConfig: CBootConfig = {
   commands: [helloWorldCommand]
 };
 
-// Start the bot
+  // Start the bot
   cBot.startBot((mockCBootConfig, args: OnStartedArgs) => {
     console.log("onStarted: Add Additional logic after the bot has started");
   });

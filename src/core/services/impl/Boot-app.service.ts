@@ -1,18 +1,23 @@
-import { Client, SlashCommandBuilder} from 'discord.js'
 import { DependencyManager } from '../../Dependency-manager'
 import { IChatEngineService } from '../interfaces/IChatEngineService'
 import { IBotAppService } from '../interfaces/IBotAppService'
-import { DiscordChatEngineService } from './DiscordChatEngineService'
 import { IConfigService } from '../interfaces/IConfigService'
 import { Command } from '../../../models/Command'
 import { CommandArgType } from '../../../models/CommandArgTypes'
 import { ILogger } from '../interfaces/ILogger'
 import { XulLogger } from '../../utils/xul-logger'
 import { CBootConfig } from '../../../models/CBootConfig'
-// const rest = new REST({ version: '8' }).setToken(process.env.BOT_TOKEN)
+
+//DISCORD SPECIFIC IMPORTS
+import { DiscordChatEngineService } from './DiscordChatEngineService'
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { Client } from 'discord.js'
+import { REST } from '@discordjs/rest'
+import { Routes } from 'discord-api-types/v9';
 
 class BotAppService implements IBotAppService {
   private logger: ILogger
+  private rest!: REST;
   private dependency: DependencyManager | undefined
   private configService: IConfigService | undefined
   private statupBotConfig: CBootConfig | undefined
@@ -27,8 +32,10 @@ class BotAppService implements IBotAppService {
     this.dependency = dependency
     this.configService = dependency.get("Config")
     this.statupBotConfig = this.configService?.getConfiguration();
+    this.rest = new REST({ version: '8' }).setToken(this.statupBotConfig!.clientKey);
 
-    if (this.statupBotConfig?.deploy === true) {
+    //Deploy commands to be visible on the server slash commands list (only needed once atleast on discord)
+    if (this.statupBotConfig?.deploy) {
       this.deploy()
     } else {
       this.logger.warn("Starting bot without deploying commands....")
@@ -58,10 +65,10 @@ class BotAppService implements IBotAppService {
       }
     })
 
-   return JSON.parse(cmdBuilder)
+   return JSON.stringify(cmdBuilder)
   } 
 
-  deploy(): void {
+  async deploy(): Promise<void> {
     try {
 
       this.logger.info('Started refreshing application (/) commands.')
@@ -75,7 +82,7 @@ class BotAppService implements IBotAppService {
       this.chatEngine.useCommands(baseCommands!);
       
       //TODO: FIX THIS BELOW (re implemnet this call on ts) !!!!
-      await rest.put(Routes.applicationGuildCommands(this.statupBotConfig?.clientId, this.statupBotConfig?.serverId),
+      await this.rest.put(Routes.applicationGuildCommands(this.statupBotConfig!.clientId, this.statupBotConfig!.serverId),
         { body: deployCommands })
 
       this.logger.info('Successfully reloaded application (/) commands.')

@@ -1,6 +1,6 @@
 // File: ChatEngineService.ts
 
-import { Client, Intents, Interaction, Guild, GuildMember, Message } from 'discord.js'
+import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType } from 'discord.js'
 import { DependencyManager } from '../../Dependency-manager'
 import { Command } from '../../../models/Command'
 import { CommandCallbackArgs } from '../../../models/CommandCallbackArgs'
@@ -9,6 +9,7 @@ import { ButtonHandlerArgs } from '../../../models/ButtonHandlerArgs'
 import { ILogger } from '../interfaces/ILogger'
 import { XulLogger } from '../../utils/xul-logger'
 import { CBootConfig } from '../../../models/CBootConfig'
+import { GatewayIntentBits } from 'discord-api-types/v9';
 
 export class DiscordChatEngineService implements IChatEngineService {
   private dependency: DependencyManager | undefined
@@ -19,7 +20,10 @@ export class DiscordChatEngineService implements IChatEngineService {
 
   constructor() {
     this.logger = new XulLogger() // TODO FETCH FROM CONFIG...
-    this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS] })
+    //Initialize DISCORD client
+    this.client = new Client({
+      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] 
+    });  
   }
 
   initializeDiscordListeners(): void {
@@ -40,31 +44,31 @@ export class DiscordChatEngineService implements IChatEngineService {
       this.onServerKicked(guild)
     })
 
-    this.client.on('interactionCreate', async (interaction: Interaction) => {
+    this.client.on('interactionCreate', async (interaction) => {
       return this.onInteractionCreate(interaction)
     })
 
-    this.client.on('guildMemberAdd', (member: GuildMember) => {
+    this.client.on('guildMemberAdd', (member) => {
       this.onMemberJoinedServer(member)
     })
 
-    this.client.on('guildMemberAvailable', (member: GuildMember) => {
-      this.onMemberAvailable(member)
+    this.client.on('guildMemberAvailable', (member) => {
+      this.onMemberAvailable(member as GuildMember)
     })
 
-    this.client.on('guildBanAdd', (member: GuildMember) => {
+    this.client.on('guildBanAdd', (member) => {
       this.onMemberBanned(member)
     })
 
-    this.client.on('guildBanRemove', (member: GuildMember) => {
+    this.client.on('guildBanRemove', (member) => {
       this.onMemberUnBanned(member)
     })
 
-    this.client.on('onMemberLeave', (member: GuildMember) => {
+    this.client.on('onMemberLeave', (member) => {
       this.onMemberLeave(member)
     })
 
-    this.client.on('warn', (member: GuildMember) => {
+    this.client.on('warn', (member) => {
       this.onGeneralWarning(member)
     })
 
@@ -77,12 +81,12 @@ export class DiscordChatEngineService implements IChatEngineService {
     this.logger.info("Discord bot ready =＾● ⋏ ●＾=")
   }
 
-  onServerJoin(guild: GuildMember) {
+  onServerJoin(guild: Guild) {
     //TODO: IMPLEMENT DATABASE PERSISTENT STORAGE AND IMPLEMENT THE INVITED_SERVERS_TABLE!!!!
     this.logger.info(`Bot joined server: ${guild}`)
   }
 
-  onServerKicked(guild: GuildMember) {
+  onServerKicked(guild: Guild) {
     this.logger.info(`bot kicked from server: ${guild}`)
   }
 
@@ -102,11 +106,11 @@ export class DiscordChatEngineService implements IChatEngineService {
     this.logger.info(`member joined:${member}`)
   }
 
-  onMemberBanned(guildBan: GuildMember) {
+  onMemberBanned(guildBan: GuildBan) {
     this.logger.warn(`member banned:${guildBan}`)
   }
 
-  onMemberUnBanned(guildBan: GuildMember) {
+  onMemberUnBanned(guildBan: GuildBan) {
     this.logger.warn(`member unbanned:${guildBan}, why?`)
   }
 
@@ -145,17 +149,18 @@ export class DiscordChatEngineService implements IChatEngineService {
   }
 
   sendMessage(channelId: string, message: string): void {
-    const channel = this.client.channels.cache.get(channelId)
-    if (channel?.isText()) {
-      channel.send(message)
-    }
+    //TODO: RE IMPLEMENT TO NEW DISCORD SPEC
+    // const channel = this.client.channels.cache.get(channelId)
+    // if (channel?.isText()) {
+    //   channel.send(message)
+    // }
   }
 
   handleCommand(interaction: Interaction) {
     // fix this...
-    const command = this.commands.find(c => c.commandName === interaction.commandName)
+    const command = this.commands.find(c => c.commandName === interaction.toString())
     if (command) {
-      const args: CommandCallbackArgs = { ...interaction, dependecy: this.dependency }
+      const args: CommandCallbackArgs = { interaction, dependency: this.dependency }
       command.callback(args)
     }
   }
@@ -192,7 +197,7 @@ export class DiscordChatEngineService implements IChatEngineService {
     }
   }
 
-  onInteractionCreate(interaction: Interaction): void {
+  onInteractionCreate(interaction: Interaction<CacheType>): void {
     if (interaction.isCommand()) {
       this.handleCommand(interaction)
     } else if (interaction.isButton()) {
