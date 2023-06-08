@@ -76,3 +76,6 @@ cBot.startBot(mockCBootConfig, onStarted)
 [your-date-time] [WARN] cBot - INTERACTION RECIVED:1116432952994304000
 [your-date-time] [WARN] cBot - COMMAND CALLED: HANDLER:HELLO-WORLD
 ```
+
+### And when you interact with the `/hello-world` slash command on discord you must see this as response
+![hello world example screen shot](images/hello-world-ss.PNG)
