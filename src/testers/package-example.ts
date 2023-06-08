@@ -55,9 +55,9 @@ export function cBotPackageTest () {
   const mockCBootConfig: CBootConfig = {
     port: 6942,
     deploy: true,
-    clientKey: 'OTE1MTAwMDA0NjE4NzYwMjMy.YaWrSg.P046xuX7yPyENC9os17Brthbi3s',
-    clientId: '915101700090646568',
-    serverId: '915100004618760232',
+    clientKey: 'dont-leak-your-bot-api-key',
+    clientId: 'client-id',
+    serverId: 'server-id',
     useImplementations: ['MockImplementation1', 'MockImplementation2'],
     locale: 'en-US', // Assuming it's a locale string
     theme: 'dark', // Assuming it's a theme string, replace with actual dummy value
