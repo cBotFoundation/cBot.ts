@@ -1,6 +1,7 @@
-import { Message, Interaction, InteractionResponseType, InteractionType } from 'discord.js'
+import { CommandInteraction } from "discord.js";
+import { DependencyManager } from "../core/Dependency-manager";
 
 export interface CommandCallbackArgs {
-  interaction: any // Discord only
-  dependency: any
+  interaction: CommandInteraction,// Discord only
+  dependency: DependencyManager | undefined
 }

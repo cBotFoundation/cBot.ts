@@ -13,13 +13,7 @@ export class ConfigService implements IConfigService {
     this.commands = []
   }
 
-  setConfiguration (config: CBootConfig): void {
-    this.configuration = config
-  }
 
-  getConfiguration (): CBootConfig | undefined {
-    return this.configuration
-  }
 
   getLogger (): ILogger | undefined {
     return this.configuration?.logger
