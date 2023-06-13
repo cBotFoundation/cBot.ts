@@ -7,7 +7,7 @@ export default interface cAction {
   onlyOwnerInteraction: boolean
 }
 
-export const YesAndNoAction: cAction[] = [
+export const YesOrNoAction: cAction[] = [
   {
     name: 'yes',
     text: 'yes',
