@@ -10,6 +10,8 @@ import { ILogger } from '../interfaces/ILogger'
 import { XulLogger } from '../../utils/xul-logger'
 import { CBootConfig } from '../../../models/CBootConfig'
 import { GatewayIntentBits } from 'discord-api-types/v9'
+import IMessageService from '../interfaces/IMessageService'
+import { cAction } from '../../messages/messages.module'
 
 export class DiscordChatEngineService implements IChatEngineService {
   private dependency: DependencyManager | undefined
@@ -17,6 +19,7 @@ export class DiscordChatEngineService implements IChatEngineService {
   private readonly client: Client
   private logger: ILogger
   private commands: Command[] = []
+  private messageService!: IMessageService
 
   constructor() {
     this.logger = new XulLogger() // TODO FETCH FROM CONFIG...
@@ -125,6 +128,7 @@ export class DiscordChatEngineService implements IChatEngineService {
 
     this.dependency = dependency
     this.bootConfig = dependency.getConfiguration()
+    this.messageService = dependency.get('MessageService')
     this.logger = this.bootConfig.logger
 
     //Initialize discord listeners
@@ -148,23 +152,37 @@ export class DiscordChatEngineService implements IChatEngineService {
     this.client.destroy() // Assuming you want to destroy the client on logout.
   }
 
-  sendMessage(channelId: string, message: string): void {
-    //TODO: RE IMPLEMENT TO NEW DISCORD SPEC
-    // const channel = this.client.channels.cache.get(channelId)
-    // if (channel?.isText()) {
-    //   channel.send(message)
-    // }
-  }
-
-  handleCommand(interaction: CommandInteraction) {
-    // fix this...
+  async handleCommand(interaction: CommandInteraction) {
     const command = this.commands.find(c => c.commandName === interaction.commandName)
-    if (command) {
-      const args: CommandCallbackArgs = { interaction, dependency: this.dependency }
-      command.callback(args)
+    
+    if (!command) {
+      //todo: Throw a unexistant command exception
+      this.logger.error('Command not found')
+      return
     }
+
+    const args: CommandCallbackArgs = { interaction, dependency: this.dependency }
+    const reply = command.callback(args)
+
+    
+    if (!reply) return // continue if handle has a message to send
+
+    //todo: This next lines should be the Message service send message function
+    const pendingResponse = await interaction.reply(reply) // todo: convert reply with platform specific factories
+
+    if (reply.actions.length == 0) return // continue if message has actions to be interacted with
+   
+    const response = await pendingResponse.awaitMessageComponent()
+
+    reply.actions.forEach((action) => {
+      if (response.customId == action.name) {
+        action.callback(interaction)
+      }
+    })
+    
   }
 
+  // we should get rid of this function
   handleButton(interaction: Interaction) {
     // Get the id of the button interaction
     const buttonId = interaction.id
@@ -180,7 +198,7 @@ export class DiscordChatEngineService implements IChatEngineService {
     // Loop over all commands
     for (const command of this.commands) {
       // Find the button with the matching id
-      const button = command.buttons.find(b => b.id === buttonId)
+      const button = null //command.buttons.find(b => b.id === buttonId)
 
       if (button != null) {
         const args: ButtonHandlerArgs = {
@@ -191,10 +209,19 @@ export class DiscordChatEngineService implements IChatEngineService {
             args: undefined
           }
         }
-        button.handler(args)
+        //button.handler(args)
         break // Exit the loop once we've found and handled the button
       }
     }
+  }
+
+  // We should get rid of this function too
+  sendMessage(channelId: string, message: string): void {
+    //TODO: RE IMPLEMENT TO NEW DISCORD SPEC
+    // const channel = this.client.channels.cache.get(channelId)
+    // if (channel?.isText()) {
+    //   channel.send(message)
+    // }
   }
 
   onInteractionCreate(interaction: Interaction<CacheType>): void {

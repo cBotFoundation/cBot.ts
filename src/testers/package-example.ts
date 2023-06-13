@@ -8,22 +8,30 @@ import { ButtonHandlerArgs } from '../models/ButtonHandlerArgs'
 import { XulLogger } from '../core/utils/xul-logger'
 import { Message } from 'discord.js'
 import { env } from '../../env'
+import { cMessage } from '../core/messages/messages.module'
+import { DefaultTheme } from '../core/messages/api/cTheme'
+import { YesOrNoAction } from '../core/messages/api/cAction'
 
 //This is the example for the readme (update it first here then updated it in the README.md)
 function ReadmeHelloWorld () {
 
    // Configure command handlers
-   const helloWorldCommandHanlder = (args: CommandCallbackArgs): void => {
-      //DISCORD specific reply...
-      args.interaction.reply({ content: "Hello world uwu", ephemeral: false });
+   const helloWorldCommandHandler = (args: CommandCallbackArgs): cMessage | void => {
+      //Platform agnostic reply
+      const message: cMessage = {
+        theme: DefaultTheme,
+        content: 'Hello world uwu',
+        actions: YesOrNoAction
+      }
+
+      return message;
   }
 
   const helloWorldCommand: Command = new Command(
     'hello-world',
     'hello world command description :)',
     [],// No arguments for this example...
-    [],// No buttons for this example ()
-    helloWorldCommandHanlder,
+    helloWorldCommandHandler,
   )
 
   const myLogger = new XulLogger()
@@ -50,7 +58,9 @@ function ReadmeHelloWorld () {
   cBot.startBot(mockCBootConfig, onStarted)
 }
 
-// Library main testing entry point (tests all in development features...)
+/**
+ * @deprecated Library main testing entry point (tests all in development features...)
+ */
 export function cBotPackageTest() {
 
   // Configure command handlers
@@ -88,7 +98,7 @@ export function cBotPackageTest() {
     'hello-world',
     'hello world command description :)',
     [],// No arguments for this example...
-    [waveButton, ownerOnlyButton],
+    //[waveButton, ownerOnlyButton],
     helloWorldCommandHanlder,
   )
 
