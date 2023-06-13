@@ -78,12 +78,12 @@ export class BotAppService implements IBotAppService {
     cmd.arguments.forEach((arg) => {
       //TODO: improve this thing below (avoid big ass switch cases)
       switch (arg.argType) {
-        case CommandArgType.NUMBER:
+        case 'NUMBER':
 
           cmdBuilder.addNumberOption(option => option.setName(arg.argName).setDescription(arg.description))
           break
 
-        case CommandArgType.USER:
+        case 'USER':
           cmdBuilder.addUserOption(option => option.setName(arg.argName).setDescription(arg.description))
           break
 
