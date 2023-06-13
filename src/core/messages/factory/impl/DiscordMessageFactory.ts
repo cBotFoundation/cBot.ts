@@ -1,9 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from "discord.js";
-import { Message, Action } from "../../messages.module";
+import { cMessage, cAction } from "../../messages.module";
 import IMessageFactory from "../IMessageFactory";
 
 export default class DiscordMessageFactory implements IMessageFactory {
-    createMessage(message: Message): unknown {
+    createMessage(message: cMessage): unknown {
         const embed = new EmbedBuilder()
             .setColor(message.theme.primary)
             .setDescription(message.content)
@@ -23,7 +23,7 @@ export default class DiscordMessageFactory implements IMessageFactory {
         return { embeds: [embed], components: [actionRow]}
     }
 
-    createAction(action: Action): any {
+    createAction(action: cAction): any {
         // ActionColors match the name of ButtonStyle properties
         const style = ButtonStyle[action.color]
         const button = new ButtonBuilder()
