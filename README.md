@@ -1,4 +1,4 @@
-# cBot.ts
+# cBot.ts (IN-DEVELOPMENT)
 A comprehensive chatbot framework that integrates with multiple instant messaging platforms.
 
 # Installation
@@ -62,7 +62,7 @@ const onStarted = (args: OnStartedArgs) => {
 cBot.startBot(mockCBootConfig, onStarted)
 ```
 
-### Verfy bot logs and they have to be look like this:
+### Verfy startup logs:
 ```bash
 [your-date-time] [INFO] cBot - SERVICE [[CONFIG]] HAS BEEN STARTED SUCCESSFULLY
 [your-date-time] [INFO] cBot - STARTED TO DEPLOYING APPLICATION (/) COMMANDS OR ANY UNDERYLING COMMAND DEPLOYMENT.
