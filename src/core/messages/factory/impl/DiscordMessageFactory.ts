@@ -3,7 +3,7 @@ import { cMessage, cAction } from "../../messages.module";
 import IMessageFactory from "../IMessageFactory";
 
 export default class DiscordMessageFactory implements IMessageFactory {
-    createMessage(message: cMessage): unknown {
+    createMessage(message: cMessage): any {
         const embed = new EmbedBuilder()
             .setColor(message.theme.primary)
             .setDescription(message.content)
@@ -17,13 +17,13 @@ export default class DiscordMessageFactory implements IMessageFactory {
         const actionRow = new ActionRowBuilder();
 
         message.actions.forEach((action) => {
-            actionRow.addComponents(this.createAction(action))
+            actionRow.addComponents(this.createButtons(action))
         })
             
         return { embeds: [embed], components: [actionRow]}
     }
 
-    createAction(action: cAction): any {
+    createButtons(action: cAction): any {
         // ActionColors match the name of ButtonStyle properties
         const style = ButtonStyle[action.color]
         const button = new ButtonBuilder()
