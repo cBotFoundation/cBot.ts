@@ -10,8 +10,6 @@ import { ILogger } from '../interfaces/ILogger'
 import { XulLogger } from '../../utils/xul-logger'
 import { CBootConfig } from '../../../models/CBootConfig'
 import { GatewayIntentBits } from 'discord-api-types/v9'
-import IMessageService from '../interfaces/IMessageService'
-import { cAction } from '../../messages/messages.module'
 
 export class DiscordChatEngineService implements IChatEngineService {
   private dependency: DependencyManager | undefined
@@ -19,7 +17,6 @@ export class DiscordChatEngineService implements IChatEngineService {
   private readonly client: Client
   private logger: ILogger
   private commands: Command[] = []
-  private messageService!: IMessageService
 
   constructor() {
     this.logger = new XulLogger() // TODO FETCH FROM CONFIG...
@@ -128,7 +125,6 @@ export class DiscordChatEngineService implements IChatEngineService {
 
     this.dependency = dependency
     this.bootConfig = dependency.getConfiguration()
-    this.messageService = dependency.get('MessageService')
     this.logger = this.bootConfig.logger
 
     //Initialize discord listeners
