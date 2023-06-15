@@ -1,11 +1,12 @@
-import Action from './api/Action';
-import Message from './api/Message';
-import Theme from './api/Theme';
+import cAction from './api/cAction';
+import cMessage from './api/cMessage';
+import cTheme, {cThemeColor} from './api/cTheme';
 import IMessageFactory from './factory/IMessageFactory';
 
 export {
-    Action,
-    Message,
-    Theme,
-    IMessageFactory,
+    cAction,
+    cMessage,
+    cTheme,
+    cThemeColor,
+    IMessageFactory
 }

@@ -1,6 +1,6 @@
 // File: ChatEngineService.ts
 
-import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType, CommandInteraction } from 'discord.js'
+import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType, CommandInteraction, RepliableInteraction } from 'discord.js'
 import { DependencyManager } from '../../Dependency-manager'
 import { Command } from '../../../models/Command'
 import { CommandCallbackArgs } from '../../../models/CommandCallbackArgs'
@@ -10,6 +10,8 @@ import { ILogger } from '../interfaces/ILogger'
 import { XulLogger } from '../../utils/xul-logger'
 import { CBootConfig } from '../../../models/CBootConfig'
 import { GatewayIntentBits } from 'discord-api-types/v9'
+import DiscordMessageFactory from '../../messages/factory/impl/DiscordMessageFactory'
+import { cMessage } from '../../messages/messages.module'
 
 export class DiscordChatEngineService implements IChatEngineService {
   private dependency: DependencyManager | undefined
@@ -17,9 +19,11 @@ export class DiscordChatEngineService implements IChatEngineService {
   private readonly client: Client
   private logger: ILogger
   private commands: Command[] = []
+  private messageFactory: DiscordMessageFactory
 
   constructor() {
     this.logger = new XulLogger() // TODO FETCH FROM CONFIG...
+    this.messageFactory = new DiscordMessageFactory()
     //Initialize DISCORD client
     this.client = new Client({
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] 
@@ -148,23 +152,24 @@ export class DiscordChatEngineService implements IChatEngineService {
     this.client.destroy() // Assuming you want to destroy the client on logout.
   }
 
-  sendMessage(channelId: string, message: string): void {
-    //TODO: RE IMPLEMENT TO NEW DISCORD SPEC
-    // const channel = this.client.channels.cache.get(channelId)
-    // if (channel?.isText()) {
-    //   channel.send(message)
-    // }
-  }
-
-  handleCommand(interaction: CommandInteraction) {
-    // fix this...
+  async handleCommand(interaction: CommandInteraction) {
     const command = this.commands.find(c => c.commandName === interaction.commandName)
-    if (command) {
-      const args: CommandCallbackArgs = { interaction, dependency: this.dependency }
-      command.callback(args)
+    
+    if (!command) {
+      this.logger.error('Command not found')
+      throw new Error('Command not found')
     }
+
+    const args: CommandCallbackArgs = { interaction, dependency: this.dependency }
+    const reply = command.callback(args)
+
+    
+    if (!reply) return // continue if handle has a message to send
+
+    this.replyMessage(interaction, reply)    
   }
 
+  // we should get rid of this function
   handleButton(interaction: Interaction) {
     // Get the id of the button interaction
     const buttonId = interaction.id
@@ -180,7 +185,7 @@ export class DiscordChatEngineService implements IChatEngineService {
     // Loop over all commands
     for (const command of this.commands) {
       // Find the button with the matching id
-      const button = command.buttons.find(b => b.id === buttonId)
+      const button = null //command.buttons.find(b => b.id === buttonId)
 
       if (button != null) {
         const args: ButtonHandlerArgs = {
@@ -191,10 +196,30 @@ export class DiscordChatEngineService implements IChatEngineService {
             args: undefined
           }
         }
-        button.handler(args)
+        //button.handler(args)
         break // Exit the loop once we've found and handled the button
       }
     }
+  }
+
+  // TODO: Check why CommandInteraction is not a RepliableInteraction
+  async replyMessage(origin: CommandInteraction | RepliableInteraction, message: cMessage): Promise<void> {
+    const embeding = this.messageFactory.createMessage(message)
+    const pendingResponse = await origin.reply(embeding) 
+
+    if (message.actions.length == 0) return // continue if message has actions to be interacted with
+   
+    const response = await pendingResponse.awaitMessageComponent() // TODO: Add timeouts & filter to button interactions
+
+    message.actions.forEach((action) => {
+      if (response.customId == action.name) {
+        action.callback(origin) // TODO: Pass context to callback for further communication
+      }
+    })
+  }
+
+  sendMessage(channelId: string, message: cMessage): void {
+    throw new Error('Not Implemented')
   }
 
   onInteractionCreate(interaction: Interaction<CacheType>): void {

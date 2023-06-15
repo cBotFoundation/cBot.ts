@@ -1,23 +1,26 @@
 type ActionColor = 'Primary' | 'Secondary' | 'Danger';
 
-export default interface Action {
+export default interface cAction {
   name: string
   text: string
   color: ActionColor
   onlyOwnerInteraction: boolean
+  callback: (interaction: any) => void
 }
 
-export const YesAndNoAction: Action[] = [
+export const YesOrNoAction: cAction[] = [
   {
     name: 'yes',
     text: 'yes',
     onlyOwnerInteraction: false,
-    color: 'Primary'
+    color: 'Primary',
+    callback: (interaction: any) => console.log('yes')
   },
   {
     name: 'no',
     text: 'no',
     onlyOwnerInteraction: false,
-    color: 'Danger'
+    color: 'Danger',
+    callback: (interaction: any) => console.log('no')
   }
 ]
