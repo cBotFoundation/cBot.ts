@@ -6,14 +6,13 @@ import { OnStartedArgs } from '../models/OnStartedArgs'
 import { dBotButton } from '../widgets/dBotButton'
 import { ButtonHandlerArgs } from '../models/ButtonHandlerArgs'
 import { XulLogger } from '../core/utils/xul-logger'
-import { Message } from 'discord.js'
 import { env } from '../../env'
 import { cMessage } from '../core/messages/messages.module'
 import { DefaultTheme } from '../core/messages/api/cTheme'
 import { YesOrNoAction } from '../core/messages/api/cAction'
 
 //This is the example for the readme (update it first here then updated it in the README.md)
-function ReadmeHelloWorld () {
+export function ReadmeHelloWorld () {
 
    // Configure command handlers
    const helloWorldCommandHandler = (args: CommandCallbackArgs): cMessage | void => {
