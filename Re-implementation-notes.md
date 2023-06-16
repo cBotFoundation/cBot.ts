@@ -1,5 +1,3 @@
-# dBot -> cBot.ts
-
 # Hello world example
 
 ```ts
@@ -46,8 +44,3 @@
   cBot.startBot(mockCBootConfig, onStarted)
 
 ```
-
-
-
-
-
