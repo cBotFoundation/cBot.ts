@@ -1,4 +1,4 @@
-# cBot.ts
+# cBot.ts (IN-DEVELOPMENT) (CONTRIBUITIONS NEDDED)
 A comprehensive chatbot framework that integrates with multiple instant messaging platforms.
 
 # Installation
@@ -22,23 +22,25 @@ export const env = {
 ```
 
 ### Hello world example
-```ts
-  // Configure command handlers
-  const helloWorldCommandHanlder = (args: CommandCallbackArgs): void => {
-    //DISCORD specific reply...
-    args.interaction.reply({ content: "Hello world uwu", ephemeral: false });
-  }
+```typescript
+// Configure command handlers
+  const helloWorldCommandHandler = (args: CommandCallbackArgs): cMessage | void => {
+    //Platform agnostic reply
+    const message: cMessage = {
+      theme: DefaultTheme,
+      content: 'Hello world uwu',
+      actions: YesOrNoAction
+    }
 
+    return message;
+}
 
 const helloWorldCommand: Command = new Command(
-  'hello-world',
-  'hello world command description :)',
-  [],// No arguments for this example...
-  [],// No buttons for this example ()
-  helloWorldCommandHanlder,
-) 
-
-const myLogger = new XulLogger()
+  'hello-world',// Command name
+  'hello world command description :)',// Command description
+  [],// No arguments for this example...// Arguments
+  helloWorldCommandHandler,// Callback or handler
+)
 
 const mockCBootConfig: CBootConfig = {
   port: env.PORT,
@@ -46,11 +48,8 @@ const mockCBootConfig: CBootConfig = {
   clientKey: env.BOT_TOKEN,
   clientId: env.CLIENT_ID,
   serverId: env.GUILD_ID,
-  useImplementations: ['MockImplementation1', 'MockImplementation2'],
-  locale: 'en-US', // Assuming it's a locale string
-  theme: 'dark', // Assuming it's a theme string, replace with actual dummy value
+  useImplementations: ['DISCORD'],
   commands: [helloWorldCommand], // Fill with actual dummy Commands
-  logger: myLogger
 }
 
 // Define the callback function to handle the bot startup
@@ -62,7 +61,7 @@ const onStarted = (args: OnStartedArgs) => {
 cBot.startBot(mockCBootConfig, onStarted)
 ```
 
-### Verfy bot logs and they have to be look like this:
+### Verfy startup logs:
 ```bash
 [your-date-time] [INFO] cBot - SERVICE [[CONFIG]] HAS BEEN STARTED SUCCESSFULLY
 [your-date-time] [INFO] cBot - STARTED TO DEPLOYING APPLICATION (/) COMMANDS OR ANY UNDERYLING COMMAND DEPLOYMENT.
@@ -73,9 +72,9 @@ cBot.startBot(mockCBootConfig, onStarted)
 [your-date-time] [INFO] cBot - ONSTARTED: ADD ADDITIONAL LOGIC AFTER THE BOT HAS STARTED
 [your-date-time] [INFO] cBot - SUCCESSFULLY RELOADED APPLICATION (/) COMMANDS.
 [your-date-time] [INFO] cBot - DISCORD BOT READY =＾● ⋏ ●＾=
-[your-date-time] [WARN] cBot - INTERACTION RECIVED:1116432952994304000
+[your-date-time] [WARN] cBot - INTERACTION RECIVED:XXXXXXXXXXXXXXXXXXX
 [your-date-time] [WARN] cBot - COMMAND CALLED: HANDLER:HELLO-WORLD
 ```
 
-### And when you interact with the `/hello-world` slash command on discord you must see this as response
+### Interact with your `/hello-world` slash command on discord and you must see this as response
 ![hello world example screen shot](images/hello-world-ss.PNG)

@@ -1,8 +1,6 @@
-import { ThemeColor } from "../api/Theme";
-import { Message } from "../messages.module";
-import { Action } from "../messages.module";
+import { cMessage, cThemeColor, cAction } from "../messages.module";
 
 export default interface IMessageFactory {
-    createMessage(message: Message): unknown,
-    createAction(action: Action, color: ThemeColor): any,
+    createMessage(message: cMessage): any,
+    createButtons(action: cAction, color: cThemeColor): any,
 }
