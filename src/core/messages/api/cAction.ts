@@ -12,7 +12,7 @@ export const YesOrNoAction: cAction[] = [
   {
     name: 'yes',
     text: 'yes',
-    onlyOwnerInteraction: false,
+    onlyOwnerInteraction: true,
     color: 'Primary',
     callback: (interaction: any) => console.log('yes')
   },
