@@ -6,6 +6,7 @@ export default interface cAction {
   color: ActionColor
   onlyOwnerInteraction: boolean
   callback: (interaction: any) => void
+  // exception: (err: any) => void // todo implement this...
 }
 
 export const YesOrNoAction: cAction[] = [
