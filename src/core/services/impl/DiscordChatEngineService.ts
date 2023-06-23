@@ -12,77 +12,117 @@ import { CBootConfig } from '../../../models/CBootConfig'
 import { GatewayIntentBits } from 'discord-api-types/v9'
 import DiscordMessageFactory from '../../messages/factory/impl/DiscordMessageFactory'
 import { cMessage } from '../../messages/messages.module'
+import { CommandArgType } from '../../../models/CommandArgTypes'
+import { CoreEventsType } from '../models/CoreEvents'
 
 export class DiscordChatEngineService implements IChatEngineService {
+  // FRAMEWORK
   private dependency: DependencyManager | undefined
-  private bootConfig!: CBootConfig
-  private readonly client: Client
   private logger: ILogger
+  private bootConfig!: CBootConfig
   private commands: Command[] = []
+  // DISCORD
+  private readonly discordClient: Client
   private messageFactory: DiscordMessageFactory
+  // Events
+  private underlyingEvents: Map<CoreEventsType, (args:any)=>void> // Discord implemented events
+  private userEvents: Map<CoreEventsType, (args:any)=>void>       // User level events
 
-  constructor() {
-    this.logger = new XulLogger() // TODO FETCH FROM CONFIG...
-    this.messageFactory = new DiscordMessageFactory()
+  constructor() 
+  {
+    this.logger = new XulLogger() // TODO: WIP INSTANCE
+    this.messageFactory = new DiscordMessageFactory() // TODO: WIP INSTANCE
+    
+    this.underlyingEvents = new Map<CoreEventsType, (args:any)=>void>();
+    this.userEvents = new Map<CoreEventsType, (args:any)=>void>();
     //Initialize DISCORD client
-    this.client = new Client({
+    this.discordClient = new Client({
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] 
     }) 
   }
 
+  eventCall(eventName: CoreEventsType, args: any | null){
+    const coreEvent = this.underlyingEvents.get(eventName);
+    if (coreEvent){
+      coreEvent(args);
+    }else {
+      this.logger.warn(`Current platform is reciving [${eventName}] event but is not implemented on: [underylingEvents], this might be an error or an un-implemented case.`)
+    }
+  }
+
   initializeDiscordListeners(): void {
+    //TODO: REMOVE ANY AND USE SPECIFIC TYPES...
+    //TODO: IMPROVE THE WAY OF HANDLE EVENTS....
+
     // When the client is ready, run this code (only once)
-    this.client.on('message', (message: Message) => {
-      this.onMessage(message)
+    this.discordClient.on('message', (message: Message) => {
+      this.eventCall('message', null);
     })
 
-    this.client.once('ready', () => {
-      this.onReady()
+    this.discordClient.once('ready', () => {
+      this.eventCall('ready', null);
     })
 
-    this.client.on('guildCreate', (guild: Guild) => {
-      this.onServerJoin(guild)
+    this.discordClient.on('guildCreate', (guild: any) => {
+      this.eventCall('server-join', guild);
     })
 
-    this.client.on('guildDelete', (guild: Guild) => {
-      this.onServerKicked(guild)
+    this.discordClient.on('guildDelete', (guild: any) => {
+      this.eventCall('server-kicked', guild);
     })
 
-    this.client.on('interactionCreate', async (interaction) => {
-      return this.onInteractionCreate(interaction)
+    this.discordClient.on('interactionCreate', async (interaction: any) => {
+      this.eventCall('interaction-create', interaction);
     })
 
-    this.client.on('guildMemberAdd', (member) => {
-      this.onMemberJoinedServer(member)
+    this.discordClient.on('guildMemberAdd', (member: any) => {
+      this.eventCall('on-member-joined', member);
     })
 
-    this.client.on('guildMemberAvailable', (member) => {
-      this.onMemberAvailable(member as GuildMember)
+    this.discordClient.on('guildMemberAvailable', (member: any) => {
+      this.eventCall('on-member-available', member);
     })
 
-    this.client.on('guildBanAdd', (member) => {
-      this.onMemberBanned(member)
+    this.discordClient.on('guildBanAdd', (member: any) => {
+      this.eventCall('on-member-banned', member);
     })
 
-    this.client.on('guildBanRemove', (member) => {
-      this.onMemberUnBanned(member)
+    this.discordClient.on('guildBanRemove', (member: any) => {
+      this.eventCall('on-member-ban-removed', member);
     })
 
-    this.client.on('onMemberLeave', (member) => {
-      this.onMemberLeave(member)
+    this.discordClient.on('onMemberLeave', (member: any) => {
+      this.eventCall('on-member-leave', member);
     })
 
-    this.client.on('warn', (member) => {
-      this.onGeneralWarning(member)
+    this.discordClient.on('warn', (warn: any) => {
+      this.eventCall('warn', warn);
     })
 
-    this.client.on('error', (error: Error) => {
-      this.onError(error)
+    this.discordClient.on('error', (error: any) => {
+      this.eventCall('error', error);
     })
   }
 
+  registerEvents()
+  {
+    //TODO: IMPROVE THIS THING BELOW....
+    this.underlyingEvents.set('message', this.onMessage.bind(this))
+    this.underlyingEvents.set('ready', this.onReady.bind(this))
+    this.underlyingEvents.set('server-join', this.onServerJoin.bind(this))
+    this.underlyingEvents.set('server-kicked', this.onServerKicked.bind(this))
+    this.underlyingEvents.set('interaction-create', this.onInteractionCreate.bind(this))
+    this.underlyingEvents.set('on-member-joined', this.onMemberJoinedServer.bind(this))
+    this.underlyingEvents.set('on-member-leave', this.onMemberLeave.bind(this))
+    this.underlyingEvents.set('on-member-available', this.onMemberAvailable.bind(this))
+    this.underlyingEvents.set('on-member-banned', this.onMemberBanned.bind(this))
+    this.underlyingEvents.set('on-member-ban-removed', this.onMemberUnBanned.bind(this))
+    this.underlyingEvents.set('warn', this.onGeneralWarning.bind(this))
+    this.underlyingEvents.set('error', this.onError.bind(this))
+  }
+
   onReady() {
-    this.logger.info("Discord bot ready =＾● ⋏ ●＾=")
+    this.logger.info("Discord bot ready (=＾● ⋏ ●＾=)")
   }
 
   onServerJoin(guild: Guild) {
@@ -124,37 +164,23 @@ export class DiscordChatEngineService implements IChatEngineService {
     if (!message.author.bot) message.author.send('ok::::::' + message.author.id)
   }
 
-
-  init(dependency: DependencyManager): void {
-
-    this.dependency = dependency
-    this.bootConfig = dependency.getConfiguration()
-    this.logger = this.bootConfig.logger
-
-    //Initialize discord listeners
-    this.initializeDiscordListeners()
-
-    //Bot login: clientkey = process.env.BOT_TOKEN (required by discord)
-    this.client.login(this.bootConfig.clientKey)
-  }
-
   useCommands(commands: Command[]) {
     this.logger.warn(`Commands to use #: ${commands.length}`)
     this.commands = commands
   }
 
-  // Implement the new methods from IChatEngineService interface.
   login(token: string): void {
-    this.client.login(token)
+    this.logger.warn(`Authtenticating discord client...`)
+    this.discordClient.login(token)
   }
 
   logout(): void {
-    this.client.destroy() // Assuming you want to destroy the client on logout.
+    this.discordClient.destroy()
   }
 
   async handleCommand(interaction: CommandInteraction) {
     const command = this.commands.find(c => c.commandName === interaction.commandName)
-    
+
     if (!command) {
       this.logger.error('Command not found')
       throw new Error('Command not found')
@@ -163,59 +189,39 @@ export class DiscordChatEngineService implements IChatEngineService {
     const args: CommandCallbackArgs = { interaction, dependency: this.dependency }
     const reply = command.callback(args)
 
-    
     if (!reply) return // continue if handle has a message to send
 
-    this.replyMessage(interaction, reply)    
+    this.replyMessage(interaction, reply)
   }
 
-  // we should get rid of this function
-  handleButton(interaction: Interaction) {
-    // Get the id of the button interaction
-    const buttonId = interaction.id
-    const suspectUserId = interaction.user.id
-    const owner = interaction.member?.user.id
-
-    if (suspectUserId !== owner) {
-      //TODO ADD A REPLY TO THE USER WHO DID THIS
-      this.logger.error('Some one preseed others buttons (interaction dismissed 😡)')
-      return
-    }
-
-    // Loop over all commands
-    for (const command of this.commands) {
-      // Find the button with the matching id
-      const button = null //command.buttons.find(b => b.id === buttonId)
-
-      if (button != null) {
-        const args: ButtonHandlerArgs = {
-          ...interaction,
-          ownerId: '',
-          clientId: '',
-          extra: {
-            args: undefined
-          }
-        }
-        //button.handler(args)
-        break // Exit the loop once we've found and handled the button
-      }
-    }
-  }
-
-  // TODO: Check why CommandInteraction is not a RepliableInteraction
   async replyMessage(origin: CommandInteraction | RepliableInteraction, message: cMessage): Promise<void> {
     const embeding = this.messageFactory.createMessage(message)
-    const pendingResponse = await origin.reply(embeding) 
+    const pendingResponse = await origin.reply(embeding)
 
     if (message.actions.length == 0) return // continue if message has actions to be interacted with
-   
-    const response = await pendingResponse.awaitMessageComponent() // TODO: Add timeouts & filter to button interactions
 
-    message.actions.forEach((action) => {
-      if (response.customId == action.name) {
-        action.callback(origin) // TODO: Pass context to callback for further communication
-      }
-    })
+    try {
+      const response = await pendingResponse.awaitMessageComponent({ time: 60000 })
+
+      message.actions.forEach(async (action) => {
+        const suspectUserId = response.user.id
+        const owner = response.member?.user.id
+        const isInteractible = action.onlyOwnerInteraction ? suspectUserId == owner : true;
+
+        if (response.customId == action.name && isInteractible) {
+          // TODO: Pass context to callback for further communication
+          action.callback(origin)
+          await origin.editReply({ components: [] })
+        }
+      })
+
+    } catch (e) {
+      // TODO: THIS EXCEPTION SHOULD BE FOR THE TIMEOUT (FILTER UP TIMEOUT EXCEPTION...)
+      this.logger.error('Pending response exception:')
+      this.logger.fatal(`Exception: ${e}`);
+      //Removes any buttons or compnents...
+      await origin.editReply({ components: [] })
+    }
   }
 
   sendMessage(channelId: string, message: cMessage): void {
@@ -226,8 +232,6 @@ export class DiscordChatEngineService implements IChatEngineService {
     this.logger.warn('Interaction recived:'+ interaction)
     if (interaction.isCommand()) {
       this.handleCommand(interaction)
-    } else if (interaction.isButton()) {
-      this.handleButton(interaction)
     }
   }
 
@@ -236,7 +240,37 @@ export class DiscordChatEngineService implements IChatEngineService {
   }
 
   getClient(): Client {
-    return this.client
+    return this.discordClient
+  }
+
+  isChatEventImplemented (eventName: CoreEventsType) {
+    
+    return this.underlyingEvents.get(eventName) !== undefined
+  }
+
+  onChatEvent(eventName:CoreEventsType, on: (args:any)=> void)
+  {
+    if (this.underlyingEvents.get(eventName)) {
+      this.userEvents.set(eventName,on)
+    } else {
+      this.logger.fatal(`Chat event [${eventName}] is not implemented on the current platform [DISCORD]`)
+    }
+  }
+
+  // IService
+  init(dependency: DependencyManager): void {
+    // Get logger and boot config
+    this.dependency = dependency
+    this.bootConfig = dependency.getConfiguration()
+    this.logger = this.bootConfig.logger
+
+    // Register core events ()
+    this.registerEvents
+    // Initialize discord listeners
+    this.initializeDiscordListeners()
+
+    //Bot login: clientkey = process.env.BOT_TOKEN (required by discord)
+    this.discordClient.login(this.bootConfig.clientKey)
   }
 
   async dispose(): Promise<void> {
