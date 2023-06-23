@@ -1,5 +1,4 @@
 // File: ChatEngineService.ts
-
 import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType, CommandInteraction, RepliableInteraction } from 'discord.js'
 import { DependencyManager } from '../../Dependency-manager'
 import { Command } from '../../../models/Command'
@@ -13,7 +12,7 @@ import { GatewayIntentBits } from 'discord-api-types/v9'
 import DiscordMessageFactory from '../../messages/factory/impl/DiscordMessageFactory'
 import { cMessage } from '../../messages/messages.module'
 import { CommandArgType } from '../../../models/CommandArgTypes'
-import { CoreEventsType } from '../models/CoreEvents'
+import { CoreEventsArray, CoreEventsType } from '../models/CoreEvents'
 
 export class DiscordChatEngineService implements IChatEngineService {
   // FRAMEWORK
@@ -35,6 +34,7 @@ export class DiscordChatEngineService implements IChatEngineService {
     
     this.underlyingEvents = new Map<CoreEventsType, (args:any)=>void>();
     this.userEvents = new Map<CoreEventsType, (args:any)=>void>();
+
     //Initialize DISCORD client
     this.discordClient = new Client({
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] 
@@ -43,16 +43,16 @@ export class DiscordChatEngineService implements IChatEngineService {
 
   eventCall(eventName: CoreEventsType, args: any | null){
     const coreEvent = this.underlyingEvents.get(eventName);
-    if (coreEvent){
+
+    if (coreEvent) {
       coreEvent(args);
-    }else {
+    } else {
       this.logger.warn(`Current platform is reciving [${eventName}] event but is not implemented on: [underylingEvents], this might be an error or an un-implemented case.`)
     }
   }
 
   initializeDiscordListeners(): void {
-    //TODO: REMOVE ANY AND USE SPECIFIC TYPES...
-    //TODO: IMPROVE THE WAY OF HANDLE EVENTS....
+    //TODO: REMOVE ANY AND USE TYPES XD
 
     // When the client is ready, run this code (only once)
     this.discordClient.on('message', (message: Message) => {
@@ -106,19 +106,26 @@ export class DiscordChatEngineService implements IChatEngineService {
 
   registerEvents()
   {
-    //TODO: IMPROVE THIS THING BELOW....
-    this.underlyingEvents.set('message', this.onMessage.bind(this))
-    this.underlyingEvents.set('ready', this.onReady.bind(this))
-    this.underlyingEvents.set('server-join', this.onServerJoin.bind(this))
-    this.underlyingEvents.set('server-kicked', this.onServerKicked.bind(this))
-    this.underlyingEvents.set('interaction-create', this.onInteractionCreate.bind(this))
-    this.underlyingEvents.set('on-member-joined', this.onMemberJoinedServer.bind(this))
-    this.underlyingEvents.set('on-member-leave', this.onMemberLeave.bind(this))
-    this.underlyingEvents.set('on-member-available', this.onMemberAvailable.bind(this))
-    this.underlyingEvents.set('on-member-banned', this.onMemberBanned.bind(this))
-    this.underlyingEvents.set('on-member-ban-removed', this.onMemberUnBanned.bind(this))
-    this.underlyingEvents.set('warn', this.onGeneralWarning.bind(this))
-    this.underlyingEvents.set('error', this.onError.bind(this))
+    //TODO: MOVE THIS TO ANOTHER FILE AND MAKE AN ISSUE TO SPLIT THIS LOGIC (IMPORTANT!!!)
+    const eventMethodMap: Record<CoreEventsType, Function> = {
+      'message': this.onMessage,
+      'ready': this.onReady,
+      'server-join': this.onServerJoin,
+      'server-kicked': this.onServerKicked,
+      'interaction-create': this.onInteractionCreate,
+      'on-member-joined': this.onMemberJoinedServer,
+      'on-member-leave': this.onMemberLeave,
+      'on-member-available': this.onMemberAvailable,
+      'on-member-banned': this.onMemberBanned,
+      'on-member-ban-removed': this.onMemberUnBanned,
+      'warn': this.onGeneralWarning,
+      'error': this.onError,
+    }
+  
+    // Iterate over eventMethodMap and set the underlying events
+    for (const [event, method] of Object.entries(eventMethodMap)) {
+      this.underlyingEvents.set(event as CoreEventsType, method.bind(this));
+    }
   }
 
   onReady() {
@@ -201,7 +208,7 @@ export class DiscordChatEngineService implements IChatEngineService {
     if (message.actions.length == 0) return // continue if message has actions to be interacted with
 
     try {
-      const response = await pendingResponse.awaitMessageComponent({ time: 60000 })
+      const response = await pendingResponse.awaitMessageComponent({ time: 10000 })
 
       message.actions.forEach(async (action) => {
         const suspectUserId = response.user.id
@@ -216,11 +223,10 @@ export class DiscordChatEngineService implements IChatEngineService {
       })
 
     } catch (e) {
-      // TODO: THIS EXCEPTION SHOULD BE FOR THE TIMEOUT (FILTER UP TIMEOUT EXCEPTION...)
       this.logger.error('Pending response exception:')
       this.logger.fatal(`Exception: ${e}`);
-      //Removes any buttons or compnents...
-      await origin.editReply({ components: [] })
+
+      await origin.editReply({ components: [], content:"timeout..."})
     }
   }
 
@@ -264,8 +270,8 @@ export class DiscordChatEngineService implements IChatEngineService {
     this.bootConfig = dependency.getConfiguration()
     this.logger = this.bootConfig.logger
 
-    // Register core events ()
-    this.registerEvents
+    // Register core events
+    this.registerEvents()
     // Initialize discord listeners
     this.initializeDiscordListeners()
 
