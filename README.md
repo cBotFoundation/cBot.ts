@@ -9,7 +9,7 @@ npm i cBot.ts
 
 # Usage
 
-### Define an env var file like this:
+### Define an env var file like this
 ```ts
 export const env = {
   PORT: 7070,
@@ -18,7 +18,8 @@ export const env = {
   GUILD_ID: '<YOUR_DISCORD_SERVER_ID>',
   BOT_TOKEN: '<YOUR_BOT_TOKEN>',
 };
-
+```
+### Hello world example
 ```ts
 // Configure command handlers
 const helloWorldCommandHandler = (args: CommandCallbackArgs): cMessage | void => {
@@ -62,7 +63,7 @@ const onStarted = (args: OnStartedArgs) => {
 cBot.startBot(mockCBootConfig, onStarted)
 ```
 
-### Verfy startup logs:
+### Verfy startup logs
 ```bash
 [your-date-time] [INFO] cBot - SERVICE [[CONFIG]] HAS BEEN STARTED SUCCESSFULLY
 [your-date-time] [INFO] cBot - STARTED TO DEPLOYING APPLICATION (/) COMMANDS OR ANY UNDERYLING COMMAND DEPLOYMENT.
