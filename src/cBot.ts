@@ -1,9 +1,9 @@
 import { DependencyManager } from './core/Dependency-manager'
-import { CBootConfig } from './models/CBootConfig'
-import { OnStartedArgs } from './models/OnStartedArgs'
+import { cBootConfig } from './api/cBotConfig'
+import { OnStartedArgs } from './api/OnStartedArgs'
 
 export class cBot {
-  static startBot (initArgs: CBootConfig, callback: (args: OnStartedArgs) => void): void {
+  static startBot (initArgs: cBootConfig, callback: (args: OnStartedArgs) => void): void {
     //Intialize systems 
     
     const appInstance = new DependencyManager(initArgs)

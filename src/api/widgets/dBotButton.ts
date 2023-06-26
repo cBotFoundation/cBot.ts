@@ -1,4 +1,4 @@
-import { ButtonHandlerArgs } from '../models/ButtonHandlerArgs'
+import { ButtonHandlerArgs } from '../api/ButtonHandlerArgs'
 
 export class dBotButton {
   id: string

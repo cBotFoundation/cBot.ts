@@ -1,10 +1,8 @@
 import { cBot } from '../cBot'
-import { CBootConfig } from '../models/CBootConfig'
-import { Command } from '../models/Command'
-import { CommandCallbackArgs } from '../models/CommandCallbackArgs'
-import { OnStartedArgs } from '../models/OnStartedArgs'
-import { dBotButton } from '../widgets/dBotButton'
-import { ButtonHandlerArgs } from '../models/ButtonHandlerArgs'
+import { cBootConfig } from '../api/cBotConfig'
+import { Command } from '../core/commands/api/Command'
+import { CommandCallbackArgs } from '../core/commands/api/CommandCallbackArgs'
+import { OnStartedArgs } from '../api/OnStartedArgs'
 import { XulLogger } from '../core/utils/xul-logger'
 import { env } from '../../env'
 import { cMessage } from '../core/messages/messages.module'
@@ -35,7 +33,7 @@ export function ReadmeHelloWorld () {
 
   const myLogger = new XulLogger()
 
-  const mockCBootConfig: CBootConfig = {
+  const mockCBootConfig: cBootConfig = {
     port: env.PORT,
     deploy: env.RUN_COMMAND_DEPLOYER,
     clientKey: env.BOT_TOKEN,

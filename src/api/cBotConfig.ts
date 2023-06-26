@@ -1,7 +1,7 @@
 import { ILogger } from '../core/services/interfaces/ILogger'
-import { Command } from './Command'
+import { Command } from '../core/commands/api/Command'
 
-export interface CBootConfig {
+export interface cBootConfig {
   port: number
   deploy: boolean
   clientKey: string

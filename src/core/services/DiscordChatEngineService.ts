@@ -1,53 +1,59 @@
 // File: ChatEngineService.ts
 import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType, CommandInteraction, RepliableInteraction } from 'discord.js'
-import { DependencyManager } from '../../Dependency-manager'
-import { Command } from '../../../models/Command'
-import { CommandCallbackArgs } from '../../../models/CommandCallbackArgs'
-import { IChatEngineService } from '../interfaces/IChatEngineService'
-import { ButtonHandlerArgs } from '../../../models/ButtonHandlerArgs'
-import { ILogger } from '../interfaces/ILogger'
-import { XulLogger } from '../../utils/xul-logger'
-import { CBootConfig } from '../../../models/CBootConfig'
+import { IChatEngineService } from './interfaces/IChatEngineService'
+import { DependencyManager } from '../Dependency-manager'
+import { ILogger } from './interfaces/ILogger'
+import { cBootConfig } from '../../api/cBotConfig'
+import { Command } from '../commands/api/Command'
+import DiscordMessageFactory from '../messages/factory/DiscordMessageFactory'
+import { CoreEventsType } from './models/CoreEvents'
+import { XulLogger } from '../utils/xul-logger'
+import { CommandCallbackArgs } from '../commands/api/CommandCallbackArgs'
+import { cMessage } from '../messages/messages.module'
 import { GatewayIntentBits } from 'discord-api-types/v9'
-import DiscordMessageFactory from '../../messages/factory/impl/DiscordMessageFactory'
-import { cMessage } from '../../messages/messages.module'
-import { CommandArgType } from '../../../models/CommandArgTypes'
-import { CoreEventsArray, CoreEventsType } from '../models/CoreEvents'
 
 export class DiscordChatEngineService implements IChatEngineService {
   // FRAMEWORK
   private dependency: DependencyManager | undefined
   private logger: ILogger
-  private bootConfig!: CBootConfig
+  private bootConfig!: cBootConfig
   private commands: Command[] = []
   // DISCORD
   private readonly discordClient: Client
   private messageFactory: DiscordMessageFactory
   // Events
-  private underlyingEvents: Map<CoreEventsType, (args:any)=>void> // Discord implemented events
-  private userEvents: Map<CoreEventsType, (args:any)=>void>       // User level events
+  private underlyingEvents: Map<CoreEventsType, (args: any) => void> // Discord implemented events
+  private clientFrameWorkEvents: Map<CoreEventsType, (args: any) => void>       // User level events
 
-  constructor() 
-  {
+  constructor() {
     this.logger = new XulLogger() // TODO: WIP INSTANCE
-    this.messageFactory = new DiscordMessageFactory() // TODO: WIP INSTANCE
-    
-    this.underlyingEvents = new Map<CoreEventsType, (args:any)=>void>();
-    this.userEvents = new Map<CoreEventsType, (args:any)=>void>();
+    this.messageFactory = new DiscordMessageFactory()
+
+    this.underlyingEvents = new Map<CoreEventsType, (args: any) => void>();
+    this.clientFrameWorkEvents = new Map<CoreEventsType, (args: any) => void>();
 
     //Initialize DISCORD client
     this.discordClient = new Client({
-      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] 
-    }) 
+      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
+    })
   }
 
-  eventCall(eventName: CoreEventsType, args: any | null){
-    const coreEvent = this.underlyingEvents.get(eventName);
+  eventCall(eventName: CoreEventsType, args: any | null) {
+    try {
+      const coreEvent = this.underlyingEvents.get(eventName);
+      const clientEvent = this.clientFrameWorkEvents.get(eventName);
 
-    if (coreEvent) {
-      coreEvent(args);
-    } else {
-      this.logger.warn(`Current platform is reciving [${eventName}] event but is not implemented on: [underylingEvents], this might be an error or an un-implemented case.`)
+      if (coreEvent) {
+        coreEvent(args);
+
+        if (clientEvent) {
+          clientEvent(args);
+        }
+      } else {
+        this.logger.warn(`Current platform is reciving [${eventName}] event but is not implemented on: [underylingEvents], this might be an error or an un-implemented case.`)
+      }
+    } catch (error) {
+      this.logger.fatal(`Event call [${eventName}] exception ${error}`)
     }
   }
 
@@ -104,8 +110,7 @@ export class DiscordChatEngineService implements IChatEngineService {
     })
   }
 
-  registerEvents()
-  {
+  registerEvents() {
     //TODO: MOVE THIS TO ANOTHER FILE AND MAKE AN ISSUE TO SPLIT THIS LOGIC (IMPORTANT!!!)
     const eventMethodMap: Record<CoreEventsType, Function> = {
       'message': this.onMessage,
@@ -121,7 +126,7 @@ export class DiscordChatEngineService implements IChatEngineService {
       'warn': this.onGeneralWarning,
       'error': this.onError,
     }
-  
+
     // Iterate over eventMethodMap and set the underlying events
     for (const [event, method] of Object.entries(eventMethodMap)) {
       this.underlyingEvents.set(event as CoreEventsType, method.bind(this));
@@ -177,7 +182,7 @@ export class DiscordChatEngineService implements IChatEngineService {
   }
 
   login(token: string): void {
-    this.logger.warn(`Authtenticating discord client...`)
+    this.logger.warn(`Authenticating discord client...`)
     this.discordClient.login(token)
   }
 
@@ -217,16 +222,20 @@ export class DiscordChatEngineService implements IChatEngineService {
 
         if (response.customId == action.name && isInteractible) {
           // TODO: Pass context to callback for further communication
-          action.callback(origin)
+          action.callback({ dependency: this.dependency, context: origin })
           await origin.editReply({ components: [] })
         }
       })
 
     } catch (e) {
       this.logger.error('Pending response exception:')
-      this.logger.fatal(`Exception: ${e}`);
 
-      await origin.editReply({ components: [], content:"timeout..."})
+      //TODO: VERIFY IF SENDING AN EXCEPTION ACROSS ALL ACTIONS IS NEEDED
+      message.actions.forEach(async (action) => {
+        action.exception(e);
+      })
+
+      await origin.editReply({ components: [], content: "timeout..." })
     }
   }
 
@@ -235,7 +244,7 @@ export class DiscordChatEngineService implements IChatEngineService {
   }
 
   onInteractionCreate(interaction: Interaction<CacheType>): void {
-    this.logger.warn('Interaction recived:'+ interaction)
+    this.logger.warn('Interaction recived:' + interaction)
     if (interaction.isCommand()) {
       this.handleCommand(interaction)
     }
@@ -249,15 +258,13 @@ export class DiscordChatEngineService implements IChatEngineService {
     return this.discordClient
   }
 
-  isChatEventImplemented (eventName: CoreEventsType) {
-    
+  isChatEventImplemented(eventName: CoreEventsType) {
     return this.underlyingEvents.get(eventName) !== undefined
   }
 
-  onChatEvent(eventName:CoreEventsType, on: (args:any)=> void)
-  {
+  onChatEvent(eventName: CoreEventsType, on: (args: any) => void) {
     if (this.underlyingEvents.get(eventName)) {
-      this.userEvents.set(eventName,on)
+      this.clientFrameWorkEvents.set(eventName, on)
     } else {
       this.logger.fatal(`Chat event [${eventName}] is not implemented on the current platform [DISCORD]`)
     }

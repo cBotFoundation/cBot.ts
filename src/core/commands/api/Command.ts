@@ -1,6 +1,5 @@
 
-import { cMessage } from '../core/messages/messages.module'
-import { dBotButton } from '../widgets/dBotButton'
+import { cMessage } from '../../messages/messages.module'
 import { CommandArg } from './CommandArg'
 import { CommandCallbackArgs } from './CommandCallbackArgs'
 
