@@ -11,19 +11,23 @@ export default interface cAction {
   exception?: ErrorCallback
 }
 
-export const YesOrNoAction: cAction[] = [
-  {
-    name: 'yes',
-    text: 'yes',
-    onlyOwnerInteraction: true,
-    color: 'Primary',
-    callback: (interaction: any) => console.log('yes')
-  },
-  {
-    name: 'no',
-    text: 'no',
-    onlyOwnerInteraction: false,
-    color: 'Danger',
-    callback: (interaction: any) => console.log('no')
-  }
-]
+export function YesOrNoAction(yesCallback: ActionCallback, noCallback: ActionCallback, yesError?: ErrorCallback, noError?: ErrorCallback): cAction[] {
+  return [
+    {
+      name: 'yes',
+      text: 'yes',
+      onlyOwnerInteraction: true,
+      color: 'Primary',
+      callback: yesCallback,
+      exception: (yesError) ? yesError : (err: any) => console.log("Error calling yesCallback")
+    },
+    {
+      name: 'no',
+      text: 'no',
+      onlyOwnerInteraction: false,
+      color: 'Danger',
+      callback: noCallback,
+      exception: (noError) ? noError : (err: any) => console.log("Error calling noCallback")
+    }
+  ]  
+} 
