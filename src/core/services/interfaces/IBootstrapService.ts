@@ -1,5 +1,5 @@
 import { DependencyManager } from '../../Dependency-manager'
-import { IService } from './IService'
+import { IService } from '../../../api/interfaces/IService'
 
 export interface IBootstrapService extends IService {
   init: (dependency: DependencyManager) => void

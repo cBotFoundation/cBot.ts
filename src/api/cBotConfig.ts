@@ -1,5 +1,5 @@
-import { ILogger } from '../core/services/interfaces/ILogger'
-import { Command } from '../core/commands/api/Command'
+import { Command } from "../core/commands/api/Command"
+import { ILogger } from "../core/services/interfaces/ILogger"
 
 export interface cBootConfig {
   port: number

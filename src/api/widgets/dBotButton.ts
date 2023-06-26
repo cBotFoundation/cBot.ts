@@ -1,4 +1,4 @@
-import { ButtonHandlerArgs } from '../api/ButtonHandlerArgs'
+import { ButtonHandlerArgs } from "./ButtonHandlerArgs"
 
 export class dBotButton {
   id: string

@@ -1,5 +1,5 @@
 import { cBootConfig } from '../api/cBotConfig'
-import { IService } from './services/interfaces/IService'
+import { IService } from '../api/interfaces/IService'
 import { coreServices } from './services/Services.module'
 import { ILogger } from './services/interfaces/ILogger'
 import { XulLogger } from './utils/xul-logger'

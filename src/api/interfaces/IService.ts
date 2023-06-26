@@ -1,4 +1,4 @@
-import { DependencyManager } from '../../Dependency-manager'
+import { DependencyManager } from '../../core/Dependency-manager'
 
 interface IService {
   [x: string]: any

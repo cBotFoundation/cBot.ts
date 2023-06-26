@@ -1,6 +1,6 @@
 import { Command } from '../../commands/api/Command'
 import { cMessage } from '../../messages/messages.module'
-import { IService } from './IService'
+import { IService } from '../../../api/interfaces/IService'
 import { CoreEventsType } from '../models/CoreEvents'
 
 // TODO: CREATE ALL ARGUMENTS AS REGISTRABLE LAMDAS
