@@ -29,8 +29,8 @@ export class DiscordChatEngineService implements IChatEngineService {
     this.logger = new XulLogger() // TODO: WIP INSTANCE
     this.messageFactory = new DiscordMessageFactory()
 
-    this.underlyingEvents = new Map<CoreEventsType, (args: any) => void>();
-    this.clientFrameWorkEvents = new Map<CoreEventsType, (args: any) => void>();
+    this.underlyingEvents = new Map<CoreEventsType, (args: any) => void>()
+    this.clientFrameWorkEvents = new Map<CoreEventsType, (args: any) => void>()
 
     //Initialize DISCORD client
     this.discordClient = new Client({
@@ -40,14 +40,14 @@ export class DiscordChatEngineService implements IChatEngineService {
 
   eventCall(eventName: CoreEventsType, args: any | null) {
     try {
-      const coreEvent = this.underlyingEvents.get(eventName);
-      const clientEvent = this.clientFrameWorkEvents.get(eventName);
+      const coreEvent = this.underlyingEvents.get(eventName)
+      const clientEvent = this.clientFrameWorkEvents.get(eventName)
 
       if (coreEvent) {
-        coreEvent(args);
+        coreEvent(args)
 
         if (clientEvent) {
-          clientEvent(args);
+          clientEvent(args)
         }
       } else {
         this.logger.warn(`Current platform is reciving [${eventName}] event but is not implemented on: [underylingEvents], this might be an error or an un-implemented case.`)
@@ -62,51 +62,51 @@ export class DiscordChatEngineService implements IChatEngineService {
 
     // When the client is ready, run this code (only once)
     this.discordClient.on('message', (message: Message) => {
-      this.eventCall('message', null);
+      this.eventCall('message', null)
     })
 
     this.discordClient.once('ready', () => {
-      this.eventCall('ready', null);
+      this.eventCall('ready', null)
     })
 
     this.discordClient.on('guildCreate', (guild: any) => {
-      this.eventCall('server-join', guild);
+      this.eventCall('server-join', guild)
     })
 
     this.discordClient.on('guildDelete', (guild: any) => {
-      this.eventCall('server-kicked', guild);
+      this.eventCall('server-kicked', guild)
     })
 
     this.discordClient.on('interactionCreate', async (interaction: any) => {
-      this.eventCall('interaction-create', interaction);
+      this.eventCall('interaction-create', interaction)
     })
 
     this.discordClient.on('guildMemberAdd', (member: any) => {
-      this.eventCall('on-member-joined', member);
+      this.eventCall('on-member-joined', member)
     })
 
     this.discordClient.on('guildMemberAvailable', (member: any) => {
-      this.eventCall('on-member-available', member);
+      this.eventCall('on-member-available', member)
     })
 
     this.discordClient.on('guildBanAdd', (member: any) => {
-      this.eventCall('on-member-banned', member);
+      this.eventCall('on-member-banned', member)
     })
 
     this.discordClient.on('guildBanRemove', (member: any) => {
-      this.eventCall('on-member-ban-removed', member);
+      this.eventCall('on-member-ban-removed', member)
     })
 
     this.discordClient.on('onMemberLeave', (member: any) => {
-      this.eventCall('on-member-leave', member);
+      this.eventCall('on-member-leave', member)
     })
 
     this.discordClient.on('warn', (warn: any) => {
-      this.eventCall('warn', warn);
+      this.eventCall('warn', warn)
     })
 
     this.discordClient.on('error', (error: any) => {
-      this.eventCall('error', error);
+      this.eventCall('error', error)
     })
   }
 
@@ -129,7 +129,7 @@ export class DiscordChatEngineService implements IChatEngineService {
 
     // Iterate over eventMethodMap and set the underlying events
     for (const [event, method] of Object.entries(eventMethodMap)) {
-      this.underlyingEvents.set(event as CoreEventsType, method.bind(this));
+      this.underlyingEvents.set(event as CoreEventsType, method.bind(this))
     }
   }
 
@@ -218,7 +218,7 @@ export class DiscordChatEngineService implements IChatEngineService {
       message.actions.forEach(async (action) => {
         const suspectUserId = response.user.id
         const owner = response.member?.user.id
-        const isInteractible = action.onlyOwnerInteraction ? suspectUserId == owner : true;
+        const isInteractible = action.onlyOwnerInteraction ? suspectUserId == owner : true
 
         if (response.customId == action.name && isInteractible) {
           // TODO: Pass context to callback for further communication
@@ -232,7 +232,9 @@ export class DiscordChatEngineService implements IChatEngineService {
 
       //TODO: VERIFY IF SENDING AN EXCEPTION ACROSS ALL ACTIONS IS NEEDED
       message.actions.forEach(async (action) => {
-        action.exception(e);
+        if (action.exception) {
+          action.exception(e)
+        }
       })
 
       await origin.editReply({ components: [], content: "timeout..." })
