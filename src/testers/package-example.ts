@@ -20,7 +20,10 @@ export function ReadmeHelloWorld () {
       const message: cMessage = {
         theme: DefaultTheme,
         content: 'Hello world uwu',
-        actions: YesOrNoAction
+        actions: YesOrNoAction(
+          (payload: any) => {console.log('Yes Clicked')}, 
+          (payload: any) => {console.log('No Clicked')}
+        )
       }
 
       return message;
