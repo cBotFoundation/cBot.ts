@@ -50,8 +50,8 @@ export default class DiscordCommandDeployer implements ICommandDeployer {
   // DISCORD Platform specific slash commands
   buildDiscordSlashCommand(cmd: Command): SlashCommandBuilder {
     let cmdBuilder = new SlashCommandBuilder()
-      .setName(cmd.commandName)
-      .setDescription(cmd.commandDescription)
+      .setName(cmd.name)
+      .setDescription(cmd.description)
 
     cmd.arguments.forEach((arg) => {
       //TODO: improve this thing below (avoid big ass switch cases)
@@ -73,7 +73,7 @@ export default class DiscordCommandDeployer implements ICommandDeployer {
       this.logger.warn(`Command builder: added ${arg.argType} option to the command, arg name: ${arg.argName}`)
     })
 
-    this.logger.warn(`Command builder: building discord slash command for: ${cmd.commandName}`)
+    this.logger.warn(`Command builder: building discord slash command for: ${cmd.name}`)
     return cmdBuilder
   }
 }

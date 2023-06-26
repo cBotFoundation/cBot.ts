@@ -191,7 +191,7 @@ export class DiscordChatEngineService implements IChatEngineService {
   }
 
   async handleCommand(interaction: CommandInteraction) {
-    const command = this.commands.find(c => c.commandName === interaction.commandName)
+    const command = this.commands.find(c => c.name === interaction.commandName)
 
     if (!command) {
       this.logger.error('Command not found')

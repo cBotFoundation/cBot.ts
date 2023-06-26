@@ -32,13 +32,13 @@ const helloWorldCommandHandler = (args: CommandCallbackArgs): cMessage | void =>
       (payload: cActionContext) => { myLogger.info('No Clicked') }
     )
   }
-
+  
   return message
 }
 
 const helloWorldCommand: Command = {
-  commandName: 'hello-world',
-  commandDescription: 'hello world command description :)',
+  name: 'hello-world',
+  description: 'hello world command description :)',
   arguments: [],// No arguments for this example...
   callback: helloWorldCommandHandler,
 }

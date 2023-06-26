@@ -4,8 +4,8 @@ import { CommandArg } from './CommandArg'
 import { CommandCallbackArgs } from './CommandCallbackArgs'
 
 export class Command {
-  commandName: string
-  commandDescription: string
+  name: string
+  description: string
   callback: (args: CommandCallbackArgs) => cMessage | void
   arguments: CommandArg[]
 
@@ -15,8 +15,8 @@ export class Command {
     commandArgs: CommandArg[],
     callback: (args: CommandCallbackArgs) => cMessage | void,
   ) {
-    this.commandName = commandName
-    this.commandDescription = commandDescription
+    this.name = commandName
+    this.description = commandDescription
     this.arguments = commandArgs
     this.callback = callback
   }
