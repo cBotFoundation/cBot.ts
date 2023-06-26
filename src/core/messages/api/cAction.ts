@@ -1,12 +1,14 @@
 type ActionColor = 'Primary' | 'Secondary' | 'Danger';
+type ActionCallback = (payload: any) => void
+type ErrorCallback = (err: any) => void
 
 export default interface cAction {
   name: string
   text: string
   color: ActionColor
   onlyOwnerInteraction: boolean
-  callback: (interaction: any) => void
-  // exception: (err: any) => void // todo implement this...
+  callback: ActionCallback
+  exception?: ErrorCallback
 }
 
 export const YesOrNoAction: cAction[] = [
