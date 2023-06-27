@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from "discord.js";
-import { cMessage, cAction } from "../../messages.module";
-import IMessageFactory from "../IMessageFactory";
+import { cMessage, cAction } from "../messages.module";
+import IMessageFactory from "../api/interfaces/IMessageFactory";
 
 export default class DiscordMessageFactory implements IMessageFactory {
     createMessage(message: cMessage): any {

@@ -9,7 +9,7 @@ npm i cBot.ts
 
 # Usage
 
-### Define an env var file like this:
+### Define an env var file like this
 ```ts
 export const env = {
   PORT: 7070,
@@ -18,38 +18,40 @@ export const env = {
   GUILD_ID: '<YOUR_DISCORD_SERVER_ID>',
   BOT_TOKEN: '<YOUR_BOT_TOKEN>',
 };
-
 ```
-
 ### Hello world example
-```typescript
+```ts
 // Configure command handlers
-  const helloWorldCommandHandler = (args: CommandCallbackArgs): cMessage | void => {
-    //Platform agnostic reply
-    const message: cMessage = {
-      theme: DefaultTheme,
-      content: 'Hello world uwu',
-      actions: YesOrNoAction
-    }
-
-    return message;
+const helloWorldCommandHandler = (args: CommandCallbackArgs): cMessage | void => {
+  //Platform agnostic reply
+  const message: cMessage = {
+    theme: DefaultTheme,
+    content: 'Hello world =＾● ⋏ ●＾=',
+    actions: YesOrNoAction(
+      (payload: cActionContext) => { myLogger.info(`Yes Clicked ${ payload.dependency?.get('BotApp')}`) },
+      (payload: cActionContext) => { myLogger.info('No Clicked') }
+    )
+  }
+  
+  return message
 }
 
-const helloWorldCommand: Command = new Command(
-  'hello-world',// Command name
-  'hello world command description :)',// Command description
-  [],// No arguments for this example...// Arguments
-  helloWorldCommandHandler,// Callback or handler
-)
+const helloWorldCommand: Command = {
+  name: 'hello-world',
+  description: 'hello world command description :)',
+  arguments: [],// No arguments for this example...
+  callback: helloWorldCommandHandler,
+}
 
-const mockCBootConfig: CBootConfig = {
+
+const mockCBootConfig: cBootConfig = {
   port: env.PORT,
   deploy: env.RUN_COMMAND_DEPLOYER,
-  clientKey: env.BOT_TOKEN,
+  clientKey: env.BOT_TOKEN, 
   clientId: env.CLIENT_ID,
   serverId: env.GUILD_ID,
-  useImplementations: ['DISCORD'],
   commands: [helloWorldCommand], // Fill with actual dummy Commands
+  logger: myLogger
 }
 
 // Define the callback function to handle the bot startup
@@ -61,7 +63,7 @@ const onStarted = (args: OnStartedArgs) => {
 cBot.startBot(mockCBootConfig, onStarted)
 ```
 
-### Verfy startup logs:
+### Verfy startup logs
 ```bash
 [your-date-time] [INFO] cBot - SERVICE [[CONFIG]] HAS BEEN STARTED SUCCESSFULLY
 [your-date-time] [INFO] cBot - STARTED TO DEPLOYING APPLICATION (/) COMMANDS OR ANY UNDERYLING COMMAND DEPLOYMENT.

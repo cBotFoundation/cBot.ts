@@ -1,5 +1,7 @@
+import cInteraction from "./cActionContext";
+
 type ActionColor = 'Primary' | 'Secondary' | 'Danger';
-type ActionCallback = (payload: any) => void
+type ActionCallback = (payload: cInteraction) => void
 type ErrorCallback = (err: any) => void
 
 export default interface cAction {
