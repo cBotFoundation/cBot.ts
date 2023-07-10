@@ -13,18 +13,18 @@ import { OnStartedArgs } from '../api/OnStartedArgs'
 import { env } from '../../env'
 import { XulLogger } from '../core/utils/xul-logger'
 
-//This is the example for the readme (update it first here then updated it in the README.md)
-export function ReadmeHelloWorld() {
+// This is the example for the readme (update it first here then updated it in the README.md)
+export function ReadmeHelloWorld () {
   const myLogger = new XulLogger()
 
   // Configure command handlers
   const helloWorldCommandHandler = (args: CommandCallbackArgs): cMessage | void => {
-    //Platform agnostic reply
+    // Platform agnostic reply
     const message: cMessage = {
       theme: DefaultTheme,
       content: 'Hello world =＾● ⋏ ●＾=',
       actions: YesOrNoAction(
-        (payload: cActionContext) => { myLogger.info(`Yes Clicked ${ payload.dependency?.get('BotApp')}`) },
+        (payload: cActionContext) => { myLogger.info(`Yes Clicked ${payload.dependency?.get('BotApp')}`) },
         (payload: cActionContext) => { myLogger.info('No Clicked') }
       )
     }
@@ -35,15 +35,14 @@ export function ReadmeHelloWorld() {
   const helloWorldCommand: Command = {
     name: 'hello-world',
     description: 'hello world command description :)',
-    arguments: [],// No arguments for this example...
-    callback: helloWorldCommandHandler,
+    arguments: [], // No arguments for this example...
+    callback: helloWorldCommandHandler
   }
-
 
   const mockCBootConfig: cBootConfig = {
     port: env.PORT,
     deploy: env.RUN_COMMAND_DEPLOYER,
-    clientKey: env.BOT_TOKEN, 
+    clientKey: env.BOT_TOKEN,
     clientId: env.CLIENT_ID,
     serverId: env.GUILD_ID,
     commands: [helloWorldCommand], // Fill with actual dummy Commands

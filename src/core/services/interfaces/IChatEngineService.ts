@@ -11,5 +11,5 @@ export interface IChatEngineService extends IService {
   replyMessage: (origin: any, message: cMessage) => void
   sendMessage: (channelId: string, message: cMessage) => void
   isChatEventImplemented: (eventName: CoreEventsType) => boolean
-  onChatEvent: (eventName: CoreEventsType, on: (args:any)=> void) => void
+  onChatEvent: (eventName: CoreEventsType, on: (args: any) => void) => void
 }

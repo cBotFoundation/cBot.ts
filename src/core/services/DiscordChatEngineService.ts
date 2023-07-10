@@ -20,33 +20,33 @@ export class DiscordChatEngineService implements IChatEngineService {
   private commands: Command[] = []
   // DISCORD
   private readonly discordClient: Client
-  private messageFactory: DiscordMessageFactory
+  private readonly messageFactory: DiscordMessageFactory
   // Events
-  private underlyingEvents: Map<CoreEventsType, (args: any) => void> // Discord implemented events
-  private clientFrameWorkEvents: Map<CoreEventsType, (args: any) => void>       // User level events
+  private readonly underlyingEvents: Map<CoreEventsType, (args: any) => void> // Discord implemented events
+  private readonly clientFrameWorkEvents: Map<CoreEventsType, (args: any) => void> // User level events
 
-  constructor() {
+  constructor () {
     this.logger = new XulLogger() // TODO: WIP INSTANCE
     this.messageFactory = new DiscordMessageFactory()
 
     this.underlyingEvents = new Map<CoreEventsType, (args: any) => void>()
     this.clientFrameWorkEvents = new Map<CoreEventsType, (args: any) => void>()
 
-    //Initialize DISCORD client
+    // Initialize DISCORD client
     this.discordClient = new Client({
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
     })
   }
 
-  eventCall(eventName: CoreEventsType, args: any | null) {
+  eventCall (eventName: CoreEventsType, args: any | null) {
     try {
       const coreEvent = this.underlyingEvents.get(eventName)
       const clientEvent = this.clientFrameWorkEvents.get(eventName)
 
-      if (coreEvent) {
+      if (coreEvent != null) {
         coreEvent(args)
 
-        if (clientEvent) {
+        if (clientEvent != null) {
           clientEvent(args)
         }
       } else {
@@ -57,8 +57,8 @@ export class DiscordChatEngineService implements IChatEngineService {
     }
   }
 
-  initializeDiscordListeners(): void {
-    //TODO: REMOVE ANY AND USE TYPES XD
+  initializeDiscordListeners (): void {
+    // TODO: REMOVE ANY AND USE TYPES XD
 
     // When the client is ready, run this code (only once)
     this.discordClient.on('message', (message: Message) => {
@@ -110,11 +110,11 @@ export class DiscordChatEngineService implements IChatEngineService {
     })
   }
 
-  registerEvents() {
-    //TODO: MOVE THIS TO ANOTHER FILE AND MAKE AN ISSUE TO SPLIT THIS LOGIC (IMPORTANT!!!)
+  registerEvents () {
+    // TODO: MOVE THIS TO ANOTHER FILE AND MAKE AN ISSUE TO SPLIT THIS LOGIC (IMPORTANT!!!)
     const eventMethodMap: Record<CoreEventsType, Function> = {
-      'message': this.onMessage,
-      'ready': this.onReady,
+      message: this.onMessage,
+      ready: this.onReady,
       'server-join': this.onServerJoin,
       'server-kicked': this.onServerKicked,
       'interaction-create': this.onInteractionCreate,
@@ -123,8 +123,8 @@ export class DiscordChatEngineService implements IChatEngineService {
       'on-member-available': this.onMemberAvailable,
       'on-member-banned': this.onMemberBanned,
       'on-member-ban-removed': this.onMemberUnBanned,
-      'warn': this.onGeneralWarning,
-      'error': this.onError,
+      warn: this.onGeneralWarning,
+      error: this.onError
     }
 
     // Iterate over eventMethodMap and set the underlying events
@@ -133,67 +133,67 @@ export class DiscordChatEngineService implements IChatEngineService {
     }
   }
 
-  onReady() {
-    this.logger.info("Discord bot ready (=＾● ⋏ ●＾=)")
+  onReady () {
+    this.logger.info('Discord bot ready (=＾● ⋏ ●＾=)')
   }
 
-  onServerJoin(guild: Guild) {
-    //TODO: IMPLEMENT DATABASE PERSISTENT STORAGE AND IMPLEMENT THE INVITED_SERVERS_TABLE!!!!
+  onServerJoin (guild: Guild) {
+    // TODO: IMPLEMENT DATABASE PERSISTENT STORAGE AND IMPLEMENT THE INVITED_SERVERS_TABLE!!!!
     this.logger.info(`Bot joined server: ${guild}`)
   }
 
-  onServerKicked(guild: Guild) {
+  onServerKicked (guild: Guild) {
     this.logger.info(`bot kicked from server: ${guild}`)
   }
 
-  onGeneralWarning(info: any) {
+  onGeneralWarning (info: any) {
     this.logger.warn(`member connected:) :${info}`)
   }
 
-  onMemberAvailable(member: GuildMember) {
+  onMemberAvailable (member: GuildMember) {
     this.logger.info(`member connected:) :${member}`)
   }
 
-  onMemberLeave(member: GuildMember) {
+  onMemberLeave (member: GuildMember) {
     this.logger.info(`member leaved or kicked:${member}`)
   }
 
-  onMemberJoinedServer(member: GuildMember) {
+  onMemberJoinedServer (member: GuildMember) {
     this.logger.info(`member joined:${member}`)
   }
 
-  onMemberBanned(guildBan: GuildBan) {
+  onMemberBanned (guildBan: GuildBan) {
     this.logger.warn(`member banned:${guildBan}`)
   }
 
-  onMemberUnBanned(guildBan: GuildBan) {
+  onMemberUnBanned (guildBan: GuildBan) {
     this.logger.warn(`member unbanned:${guildBan}, why?`)
   }
 
-  onMessage(message: Message) {
+  onMessage (message: Message) {
     this.logger.info(`bot recived message: ${message}`)
 
     if (!message.author.bot) message.author.send('ok::::::' + message.author.id)
   }
 
-  useCommands(commands: Command[]) {
+  useCommands (commands: Command[]) {
     this.logger.warn(`Commands to use #: ${commands.length}`)
     this.commands = commands
   }
 
-  login(token: string): void {
-    this.logger.warn(`Authenticating discord client...`)
+  login (token: string): void {
+    this.logger.warn('Authenticating discord client...')
     this.discordClient.login(token)
   }
 
-  logout(): void {
+  logout (): void {
     this.discordClient.destroy()
   }
 
-  async handleCommand(interaction: CommandInteraction) {
+  async handleCommand (interaction: CommandInteraction) {
     const command = this.commands.find(c => c.name === interaction.commandName)
 
-    if (!command) {
+    if (command == null) {
       this.logger.error('Command not found')
       throw new Error('Command not found')
     }
@@ -201,12 +201,12 @@ export class DiscordChatEngineService implements IChatEngineService {
     const args: CommandCallbackArgs = { interaction, dependency: this.dependency }
     const reply = command.callback(args)
 
-    if (!reply) return // continue if handle has a message to send
+    if (reply == null) return // continue if handle has a message to send
 
     this.replyMessage(interaction, reply)
   }
 
-  async replyMessage(origin: CommandInteraction | RepliableInteraction, message: cMessage): Promise<void> {
+  async replyMessage (origin: CommandInteraction | RepliableInteraction, message: cMessage): Promise<void> {
     const embeding = this.messageFactory.createMessage(message)
     const pendingResponse = await origin.reply(embeding)
 
@@ -226,46 +226,45 @@ export class DiscordChatEngineService implements IChatEngineService {
           await origin.editReply({ components: [] })
         }
       })
-
     } catch (e) {
       this.logger.error('Pending response exception:')
 
-      //TODO: VERIFY IF SENDING AN EXCEPTION ACROSS ALL ACTIONS IS NEEDED
+      // TODO: VERIFY IF SENDING AN EXCEPTION ACROSS ALL ACTIONS IS NEEDED
       message.actions.forEach(async (action) => {
-        if (action.exception) {
+        if (action.exception != null) {
           action.exception(e)
         }
       })
 
-      await origin.editReply({ components: [], content: "timeout..." })
+      await origin.editReply({ components: [], content: 'timeout...' })
     }
   }
 
-  sendMessage(channelId: string, message: cMessage): void {
+  sendMessage (channelId: string, message: cMessage): void {
     throw new Error('Not Implemented')
   }
 
-  onInteractionCreate(interaction: Interaction<CacheType>): void {
+  onInteractionCreate (interaction: Interaction<CacheType>): void {
     this.logger.warn('Interaction recived:' + interaction)
     if (interaction.isCommand()) {
       this.handleCommand(interaction)
     }
   }
 
-  onError(error: any): void {
+  onError (error: any): void {
     this.logger.fatal(`Discord client error: ${error}`)
   }
 
-  getClient(): Client {
+  getClient (): Client {
     return this.discordClient
   }
 
-  isChatEventImplemented(eventName: CoreEventsType) {
+  isChatEventImplemented (eventName: CoreEventsType) {
     return this.underlyingEvents.get(eventName) !== undefined
   }
 
-  onChatEvent(eventName: CoreEventsType, on: (args: any) => void) {
-    if (this.underlyingEvents.get(eventName)) {
+  onChatEvent (eventName: CoreEventsType, on: (args: any) => void) {
+    if (this.underlyingEvents.get(eventName) != null) {
       this.clientFrameWorkEvents.set(eventName, on)
     } else {
       this.logger.fatal(`Chat event [${eventName}] is not implemented on the current platform [DISCORD]`)
@@ -273,7 +272,7 @@ export class DiscordChatEngineService implements IChatEngineService {
   }
 
   // IService
-  init(dependency: DependencyManager): void {
+  init (dependency: DependencyManager): void {
     // Get logger and boot config
     this.dependency = dependency
     this.bootConfig = dependency.getConfiguration()
@@ -284,15 +283,15 @@ export class DiscordChatEngineService implements IChatEngineService {
     // Initialize discord listeners
     this.initializeDiscordListeners()
 
-    //Bot login: clientkey = process.env.BOT_TOKEN (required by discord)
+    // Bot login: clientkey = process.env.BOT_TOKEN (required by discord)
     this.discordClient.login(this.bootConfig.clientKey)
   }
 
-  async dispose(): Promise<void> {
+  async dispose (): Promise<void> {
     // Clean up resources
   }
 
-  async interval(): Promise<void> {
+  async interval (): Promise<void> {
     // Perform periodic tasks
   }
 }

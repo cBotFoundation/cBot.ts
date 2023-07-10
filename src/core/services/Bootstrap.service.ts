@@ -1,5 +1,5 @@
-import { DependencyManager } from "../Dependency-manager"
-import { IBootstrapService } from "./interfaces/IBootstrapService"
+import { DependencyManager } from '../Dependency-manager'
+import { IBootstrapService } from './interfaces/IBootstrapService'
 
 class BootstrapService implements IBootstrapService {
   private readonly logger: any

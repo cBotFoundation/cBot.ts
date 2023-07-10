@@ -1,6 +1,6 @@
-import cInteraction from "./cActionContext";
+import cInteraction from './cActionContext'
 
-type ActionColor = 'Primary' | 'Secondary' | 'Danger';
+type ActionColor = 'Primary' | 'Secondary' | 'Danger'
 type ActionCallback = (payload: cInteraction) => void
 type ErrorCallback = (err: any) => void
 
@@ -13,7 +13,7 @@ export default interface cAction {
   exception?: ErrorCallback
 }
 
-export function YesOrNoAction(yesCallback: ActionCallback, noCallback: ActionCallback, yesError?: ErrorCallback, noError?: ErrorCallback): cAction[] {
+export function YesOrNoAction (yesCallback: ActionCallback, noCallback: ActionCallback, yesError?: ErrorCallback, noError?: ErrorCallback): cAction[] {
   return [
     {
       name: 'yes',
@@ -31,5 +31,5 @@ export function YesOrNoAction(yesCallback: ActionCallback, noCallback: ActionCal
       callback: noCallback,
       exception: (noError) ? noError : (err: any) => console.log("Error calling noCallback")
     }
-  ]  
-} 
+  ]
+}

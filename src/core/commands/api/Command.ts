@@ -13,7 +13,7 @@ export class Command {
     commandName: string,
     commandDescription: string,
     commandArgs: CommandArg[],
-    callback: (args: CommandCallbackArgs) => cMessage | void,
+    callback: (args: CommandCallbackArgs) => cMessage | void
   ) {
     this.name = commandName
     this.description = commandDescription
