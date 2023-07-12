@@ -25,7 +25,8 @@
     "googleapis": "^120.0.0",
     "log4js": "^6.9.1",
     "mongoose": "^7.3.2",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "ts-standard": "^12.0.2"

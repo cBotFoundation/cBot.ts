@@ -1,3 +1,5 @@
+import "../core/env"
+
 // Framework imports (TODO: REFACTOR IMPORTS TO MAKE THIS SMALLER)
 import { startBot } from '../cBot'
 import { cBootConfig } from '../api/cBotConfig'
@@ -10,7 +12,6 @@ import { CommandCallbackArgs } from '../core/commands/api/CommandCallbackArgs'
 import { OnStartedArgs } from '../api/OnStartedArgs'
 
 // Optional imports
-import { env } from '../../env'
 import { XulLogger } from '../core/utils/xul-logger'
 
 // This is the example for the readme (update it first here then updated it in the README.md)
@@ -42,11 +43,11 @@ export function ReadmeHelloWorld (): void {
   }
 
   const mockCBootConfig: cBootConfig = {
-    port: env.PORT,
-    deploy: env.RUN_COMMAND_DEPLOYER,
-    clientKey: env.BOT_TOKEN,
-    clientId: env.CLIENT_ID,
-    serverId: env.GUILD_ID,
+    port: 7070,
+    deploy: true,
+    clientKey: process.env.DISCORD_BOT_TOKEN,
+    clientId: process.env.DISCORD_CLIENT_ID,
+    serverId: process.env.DISCORD_GUILD_ID,
     commands: [helloWorldCommand], // Fill with actual dummy Commands
     logger: myLogger
   }
