@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js'
-import { cMessage, cAction } from '../messages.module'
+import { cAction, cMessage } from '../messages.module'
 import IMessageFactory from '../api/interfaces/IMessageFactory'
 
 export default class DiscordMessageFactory implements IMessageFactory {
@@ -9,7 +9,7 @@ export default class DiscordMessageFactory implements IMessageFactory {
       .setDescription(message.content)
       .setTimestamp()
 
-    if (message.title) {
+    if (message.title !== undefined) {
       embed.setTitle(message.title)
     }
 
@@ -26,10 +26,9 @@ export default class DiscordMessageFactory implements IMessageFactory {
   createButtons (action: cAction): any {
     // ActionColors match the name of ButtonStyle properties
     const style = ButtonStyle[action.color]
-    const button = new ButtonBuilder()
+    return new ButtonBuilder()
       .setCustomId(action.name)
       .setLabel(action.text)
       .setStyle(style)
-    return button
   }
 }

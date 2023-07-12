@@ -43,7 +43,7 @@ export default class DiscordCommandDeployer implements ICommandDeployer {
 
       this.logger.info('Successfully reloaded application (/) commands.')
     } catch (error) {
-      this.logger.error('Cannot deploy commands due: ' + error)
+      this.logger.error(`Cannot deploy commands due: ${error}`)
     }
   }
 

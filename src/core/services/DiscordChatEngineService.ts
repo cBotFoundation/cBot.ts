@@ -38,7 +38,7 @@ export class DiscordChatEngineService implements IChatEngineService {
     })
   }
 
-  eventCall (eventName: CoreEventsType, args: any | null) {
+  eventCall (eventName: CoreEventsType, args: any | null): void {
     try {
       const coreEvent = this.underlyingEvents.get(eventName)
       const clientEvent = this.clientFrameWorkEvents.get(eventName)
@@ -50,7 +50,7 @@ export class DiscordChatEngineService implements IChatEngineService {
           clientEvent(args)
         }
       } else {
-        this.logger.warn(`Current platform is reciving [${eventName}] event but is not implemented on: [underylingEvents], this might be an error or an un-implemented case.`)
+        this.logger.warn(`Current platform is receiving [${eventName}] event but is not implemented on: [underlyingEvents], this might be an error or an un-implemented case.`)
       }
     } catch (error) {
       this.logger.fatal(`Event call [${eventName}] exception ${error}`)
@@ -110,7 +110,7 @@ export class DiscordChatEngineService implements IChatEngineService {
     })
   }
 
-  registerEvents () {
+  registerEvents (): void {
     // TODO: MOVE THIS TO ANOTHER FILE AND MAKE AN ISSUE TO SPLIT THIS LOGIC (IMPORTANT!!!)
     const eventMethodMap: Record<CoreEventsType, Function> = {
       message: this.onMessage,
@@ -133,64 +133,64 @@ export class DiscordChatEngineService implements IChatEngineService {
     }
   }
 
-  onReady () {
+  onReady (): void {
     this.logger.info('Discord bot ready (=＾● ⋏ ●＾=)')
   }
 
-  onServerJoin (guild: Guild) {
+  onServerJoin (guild: Guild): void {
     // TODO: IMPLEMENT DATABASE PERSISTENT STORAGE AND IMPLEMENT THE INVITED_SERVERS_TABLE!!!!
-    this.logger.info(`Bot joined server: ${guild}`)
+    this.logger.info(`Bot joined server: #${guild.id} - ${guild.name}`)
   }
 
-  onServerKicked (guild: Guild) {
-    this.logger.info(`bot kicked from server: ${guild}`)
+  onServerKicked (guild: Guild): void {
+    this.logger.info(`bot kicked from server: #${guild.id} - ${guild.name}`)
   }
 
-  onGeneralWarning (info: any) {
+  onGeneralWarning (info: any): void {
     this.logger.warn(`member connected:) :${info}`)
   }
 
-  onMemberAvailable (member: GuildMember) {
-    this.logger.info(`member connected:) :${member}`)
+  onMemberAvailable (member: GuildMember): void {
+    this.logger.info(`member connected:) : ${member.user.id}`)
   }
 
-  onMemberLeave (member: GuildMember) {
-    this.logger.info(`member leaved or kicked:${member}`)
+  onMemberLeave (member: GuildMember): void {
+    this.logger.info(`member ${member.user.id} left ${member.guild.id}`)
   }
 
-  onMemberJoinedServer (member: GuildMember) {
-    this.logger.info(`member joined:${member}`)
+  onMemberJoinedServer (member: GuildMember): void {
+    this.logger.info(`member ${member.user.id} joined ${member.guild.id}`)
   }
 
-  onMemberBanned (guildBan: GuildBan) {
-    this.logger.warn(`member banned:${guildBan}`)
+  onMemberBanned (guildBan: GuildBan): void {
+    this.logger.warn(`member ${guildBan.user.id} banned from ${guildBan.guild.id}`)
   }
 
-  onMemberUnBanned (guildBan: GuildBan) {
-    this.logger.warn(`member unbanned:${guildBan}, why?`)
+  onMemberUnBanned (guildBan: GuildBan): void {
+    this.logger.warn(`member ${guildBan.user.id} unbanned from ${guildBan.guild.id}, why?`)
   }
 
-  onMessage (message: Message) {
-    this.logger.info(`bot recived message: ${message}`)
+  onMessage (message: Message): void {
+    this.logger.info(`bot received message: #${message.id} - from ${message.author.id}`)
 
     if (!message.author.bot) message.author.send('ok::::::' + message.author.id)
   }
 
-  useCommands (commands: Command[]) {
+  useCommands (commands: Command[]): void {
     this.logger.warn(`Commands to use #: ${commands.length}`)
     this.commands = commands
   }
 
   login (token: string): void {
     this.logger.warn('Authenticating discord client...')
-    this.discordClient.login(token)
+    this.discordClient.login(token).then(r => this.logger.info(r)) // todo: check whatever this returns
   }
 
   logout (): void {
     this.discordClient.destroy()
   }
 
-  async handleCommand (interaction: CommandInteraction) {
+  async handleCommand (interaction: CommandInteraction): Promise<void> {
     const command = this.commands.find(c => c.name === interaction.commandName)
 
     if (command == null) {
@@ -203,38 +203,41 @@ export class DiscordChatEngineService implements IChatEngineService {
 
     if (reply == null) return // continue if handle has a message to send
 
-    this.replyMessage(interaction, reply)
+    void this.replyMessage(interaction, reply)
   }
 
   async replyMessage (origin: CommandInteraction | RepliableInteraction, message: cMessage): Promise<void> {
-    const embeding = this.messageFactory.createMessage(message)
-    const pendingResponse = await origin.reply(embeding)
+    const embed = this.messageFactory.createMessage(message)
+    const pendingResponse = await origin.reply(embed) // todo: check if reply fails
 
-    if (message.actions.length == 0) return // continue if message has actions to be interacted with
+    if (message.actions.length === 0) return // continue if message has actions to be interacted with
 
     try {
       const response = await pendingResponse.awaitMessageComponent({ time: 10000 })
 
-      message.actions.forEach(async (action) => {
+      for (const action of message.actions) {
         const suspectUserId = response.user.id
         const owner = response.member?.user.id
-        const isInteractible = action.onlyOwnerInteraction ? suspectUserId == owner : true
+        const isInteractive = action.onlyOwnerInteraction ? suspectUserId === owner : true
 
-        if (response.customId == action.name && isInteractible) {
+        if (response.customId === action.name && isInteractive) {
           // TODO: Pass context to callback for further communication
-          action.callback({ dependency: this.dependency, context: origin })
+          action.actionCall({ dependency: this.dependency, context: origin })
           await origin.editReply({ components: [] })
         }
-      })
+      }
     } catch (e) {
       this.logger.error('Pending response exception:')
 
       // TODO: VERIFY IF SENDING AN EXCEPTION ACROSS ALL ACTIONS IS NEEDED
-      message.actions.forEach(async (action) => {
-        if (action.exception != null) {
-          action.exception(e)
-        }
-      })
+      //    | RE: We can inform the caller about errors sending message and
+      //    | receiving responses. This way cAction only represents the platforms'
+      //    | buttons and the reaction to them.
+      // for (const action of message.actions) {
+      //   if (action.exception != null) {
+      //     action.exception(e)
+      //   }
+      // }
 
       await origin.editReply({ components: [], content: 'timeout...' })
     }
@@ -245,7 +248,7 @@ export class DiscordChatEngineService implements IChatEngineService {
   }
 
   onInteractionCreate (interaction: Interaction<CacheType>): void {
-    this.logger.warn('Interaction recived:' + interaction)
+    this.logger.warn(`Interaction received: ${interaction}`)
     if (interaction.isCommand()) {
       this.handleCommand(interaction)
     }
@@ -259,11 +262,11 @@ export class DiscordChatEngineService implements IChatEngineService {
     return this.discordClient
   }
 
-  isChatEventImplemented (eventName: CoreEventsType) {
+  isChatEventImplemented (eventName: CoreEventsType): boolean {
     return this.underlyingEvents.get(eventName) !== undefined
   }
 
-  onChatEvent (eventName: CoreEventsType, on: (args: any) => void) {
+  onChatEvent (eventName: CoreEventsType, on: (args: any) => void): void {
     if (this.underlyingEvents.get(eventName) != null) {
       this.clientFrameWorkEvents.set(eventName, on)
     } else {

@@ -43,7 +43,7 @@ class DependencyManager {
         this.logger.info(`Service [[${meta.serviceName}]] has been started successfully`)
       })
     } catch (error) {
-      this.logger.fatal(`error initialzing: ${error}`)
+      this.logger.fatal(`error initializing: ${error}`)
     }
   }
 
