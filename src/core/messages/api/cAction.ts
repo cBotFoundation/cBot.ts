@@ -1,35 +1,31 @@
-import cInteraction from "./cActionContext";
+import cInteraction from './cActionContext'
 
-type ActionColor = 'Primary' | 'Secondary' | 'Danger';
-type ActionCallback = (payload: cInteraction) => void
-type ErrorCallback = (err: any) => void
+type ActionColor = 'Primary' | 'Secondary' | 'Danger'
+type Action = (payload: cInteraction) => void
 
 export default interface cAction {
   name: string
   text: string
   color: ActionColor
   onlyOwnerInteraction: boolean
-  callback: ActionCallback
-  exception?: ErrorCallback
+  actionCall: Action
 }
 
-export function YesOrNoAction(yesCallback: ActionCallback, noCallback: ActionCallback, yesError?: ErrorCallback, noError?: ErrorCallback): cAction[] {
+export function YesOrNoAction (yesCall: Action, noCall: Action): cAction[] {
   return [
     {
       name: 'yes',
       text: 'yes',
       onlyOwnerInteraction: true,
       color: 'Primary',
-      callback: yesCallback,
-      exception: (yesError) ? yesError : (err: any) => console.log("Error calling yesCallback")
+      actionCall: yesCall
     },
     {
       name: 'no',
       text: 'no',
       onlyOwnerInteraction: false,
       color: 'Danger',
-      callback: noCallback,
-      exception: (noError) ? noError : (err: any) => console.log("Error calling noCallback")
+      actionCall: noCall
     }
-  ]  
-} 
+  ]
+}

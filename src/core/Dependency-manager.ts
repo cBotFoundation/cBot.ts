@@ -4,19 +4,19 @@ import { coreServices } from './services/Services.module'
 import { ILogger } from './services/interfaces/ILogger'
 import { XulLogger } from './utils/xul-logger'
 
-//TODO: RENAME THIS TO CONTEXT MANAGER?
+// TODO: RENAME THIS TO CONTEXT MANAGER?
 class DependencyManager {
   private readonly instancedServices: Map<string, any>
   private readonly startHooks: Array<{ serviceName: string, hook: (manager: DependencyManager) => void }>
   private readonly intervalHooks: Array<() => void>
   private readonly disposeHooks: Array<() => Promise<void>>
   private readonly logger: ILogger
-  private bootConfig: cBootConfig 
+  private readonly bootConfig: cBootConfig
 
   constructor (configuration: cBootConfig) {
     this.logger = new XulLogger()// TESTING AND MOCKING ONLY REMOVE!!!!
-    
-    this.bootConfig = configuration;
+
+    this.bootConfig = configuration
     this.instancedServices = new Map()
     this.startHooks = []
     this.intervalHooks = []
@@ -43,7 +43,7 @@ class DependencyManager {
         this.logger.info(`Service [[${meta.serviceName}]] has been started successfully`)
       })
     } catch (error) {
-      this.logger.fatal(`error initialzing: ${error}`)
+      this.logger.fatal(`error initializing: ${error}`)
     }
   }
 
@@ -82,7 +82,7 @@ class DependencyManager {
     return this.instancedServices.get(name)
   }
 
-  getConfiguration (): cBootConfig  {
+  getConfiguration (): cBootConfig {
     return this.bootConfig
   }
 }

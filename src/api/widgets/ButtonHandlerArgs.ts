@@ -1,8 +1,8 @@
 export interface ButtonHandlerArgs {
-    id: string
-    ownerId: string
-    clientId: string
-    extra: {
-        args: any
-    }
+  id: string
+  ownerId: string
+  clientId: string
+  extra: {
+    args: any
+  }
 }
