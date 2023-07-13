@@ -25,7 +25,7 @@ export function ReadmeHelloWorld (): void {
       content: 'Hello world =＾● ⋏ ●＾=',
       actions: YesOrNoAction(
         (payload: cActionContext) => {
-          myLogger.info(`Yes Clicked ${payload.dependency?.get('BotApp')}`)
+          myLogger.info('Yes Clicked')
         },
         (payload: cActionContext) => {
           myLogger.info('No Clicked')
@@ -52,7 +52,10 @@ export function ReadmeHelloWorld (): void {
   }
 
   // Define the callback function to handle the bot startup
-  const onStarted = (args: OnStartedArgs): void => {
+  const onStarted = (error: any, args: OnStartedArgs): void => {
+    if (error == null) {
+      myLogger.error(error)
+    }
     myLogger.info('onStarted: Add Additional logic after the bot has started')
   }
 

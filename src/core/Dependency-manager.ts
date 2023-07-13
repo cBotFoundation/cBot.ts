@@ -43,7 +43,10 @@ class DependencyManager {
         this.logger.info(`Service [[${meta.serviceName}]] has been started successfully`)
       })
     } catch (error) {
-      this.logger.fatal(`error initializing: ${error}`)
+      let message = 'Unknown error'
+      if (error instanceof Error) message = error.message
+
+      this.logger.fatal(`error initializing: ${message}`)
     }
   }
 
@@ -53,7 +56,10 @@ class DependencyManager {
         await hook()
       }
     } catch (error) {
-      this.logger.error(`Cannot dispose service: ${error}`)
+      let message = 'Unknown error'
+      if (error instanceof Error) message = error.message
+
+      this.logger.error(`Cannot dispose service: ${message}`)
     }
   }
 
