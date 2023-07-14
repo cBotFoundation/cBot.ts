@@ -53,7 +53,9 @@ export class DiscordChatEngineService implements IChatEngineService {
         this.logger.warn(`Current platform is receiving [${eventName}] event but is not implemented on: [underlyingEvents], this might be an error or an un-implemented case.`)
       }
     } catch (error) {
-      this.logger.fatal(`Event call [${eventName}] exception ${error}`)
+      let message = 'Unknown Error'
+      if (error instanceof Error) message = error.message
+      this.logger.fatal(`Event call [${eventName}] exception ${message}`)
     }
   }
 
@@ -146,8 +148,8 @@ export class DiscordChatEngineService implements IChatEngineService {
     this.logger.info(`bot kicked from server: #${guild.id} - ${guild.name}`)
   }
 
-  onGeneralWarning (info: any): void {
-    this.logger.warn(`member connected:) :${info}`)
+  onGeneralWarning (info: string): void {
+    this.logger.warn(`member connected :) :${info}`)
   }
 
   onMemberAvailable (member: GuildMember): void {
@@ -173,7 +175,7 @@ export class DiscordChatEngineService implements IChatEngineService {
   onMessage (message: Message): void {
     this.logger.info(`bot received message: #${message.id} - from ${message.author.id}`)
 
-    if (!message.author.bot) message.author.send('ok::::::' + message.author.id)
+    if (!message.author.bot) { void message.author.send('ok::::::' + message.author.id) }
   }
 
   useCommands (commands: Command[]): void {
@@ -183,7 +185,7 @@ export class DiscordChatEngineService implements IChatEngineService {
 
   login (token: string): void {
     this.logger.warn('Authenticating discord client...')
-    this.discordClient.login(token).then(r => this.logger.info(r)) // todo: check whatever this returns
+    this.discordClient.login(token).catch((r: string) => this.logger.info(`Bot couldn't log in ${r}`)) // todo: check whatever this returns
   }
 
   logout (): void {
@@ -248,14 +250,16 @@ export class DiscordChatEngineService implements IChatEngineService {
   }
 
   onInteractionCreate (interaction: Interaction<CacheType>): void {
-    this.logger.warn(`Interaction received: ${interaction}`)
+    this.logger.warn(`Interaction received: ${interaction.id}`)
     if (interaction.isCommand()) {
-      this.handleCommand(interaction)
+      void this.handleCommand(interaction)
     }
   }
 
   onError (error: any): void {
-    this.logger.fatal(`Discord client error: ${error}`)
+    let message = 'Unknown error'
+    if (error instanceof Error) message = error.message
+    this.logger.fatal(`Discord client error: ${message}`)
   }
 
   getClient (): Client {
@@ -287,7 +291,9 @@ export class DiscordChatEngineService implements IChatEngineService {
     this.initializeDiscordListeners()
 
     // Bot login: clientkey = process.env.BOT_TOKEN (required by discord)
-    this.discordClient.login(this.bootConfig.clientKey)
+    this.discordClient.login(this.bootConfig.clientKey).catch((res: string) => {
+      this.logger.error(`Bot couldn't log in: ${res}`)
+    })
   }
 
   async dispose (): Promise<void> {

@@ -9,7 +9,8 @@
     "test": "ts-standard --fix && echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "prepublishOnly": "tsc",
-    "lint": "ts-standard --fix"
+    "lint": "ts-standard --fix",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "ts-standard": "^12.0.2"
+    "ts-standard": "^12.0.2",
+    "husky": "^8.0.0"
   }
 }
