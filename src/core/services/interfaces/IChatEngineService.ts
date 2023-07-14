@@ -1,6 +1,7 @@
-import { Command } from '../../../models/Command'
+import { Command } from '../../commands/api/Command'
 import { cMessage } from '../../messages/messages.module'
-import { IService } from '../IService'
+import { IService } from '../../../api/interfaces/IService'
+import { CoreEventsType } from '../models/CoreEvents'
 
 // TODO: CREATE ALL ARGUMENTS AS REGISTRABLE LAMDAS
 export interface IChatEngineService extends IService {
@@ -9,4 +10,6 @@ export interface IChatEngineService extends IService {
   logout: () => void
   replyMessage: (origin: any, message: cMessage) => void
   sendMessage: (channelId: string, message: cMessage) => void
+  isChatEventImplemented: (eventName: CoreEventsType) => boolean
+  onChatEvent: (eventName: CoreEventsType, on: (args: any) => void) => void
 }

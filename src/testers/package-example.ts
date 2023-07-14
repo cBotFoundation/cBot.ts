@@ -1,58 +1,65 @@
-import { cBot } from '../cBot'
-import { CBootConfig } from '../models/CBootConfig'
-import { Command } from '../models/Command'
-import { CommandCallbackArgs } from '../models/CommandCallbackArgs'
-import { OnStartedArgs } from '../models/OnStartedArgs'
-import { dBotButton } from '../widgets/dBotButton'
-import { ButtonHandlerArgs } from '../models/ButtonHandlerArgs'
-import { XulLogger } from '../core/utils/xul-logger'
-import { env } from '../../env'
-import { cMessage } from '../core/messages/messages.module'
+import "../core/env"
+
+// Framework imports (TODO: REFACTOR IMPORTS TO MAKE THIS SMALLER)
+import { startBot } from '../cBot'
+import { cBootConfig } from '../api/cBotConfig'
 import { DefaultTheme } from '../core/messages/api/cTheme'
+import { cMessage } from '../core/messages/messages.module'
 import { YesOrNoAction } from '../core/messages/api/cAction'
+import cActionContext from '../core/messages/api/cActionContext'
+import { Command } from '../core/commands/api/Command'
+import { CommandCallbackArgs } from '../core/commands/api/CommandCallbackArgs'
+import { OnStartedArgs } from '../api/OnStartedArgs'
 
-//This is the example for the readme (update it first here then updated it in the README.md)
-export function ReadmeHelloWorld () {
+// Optional imports
+import { XulLogger } from '../core/utils/xul-logger'
 
-   // Configure command handlers
-   const helloWorldCommandHandler = (args: CommandCallbackArgs): cMessage | void => {
-      //Platform agnostic reply
-      const message: cMessage = {
-        theme: DefaultTheme,
-        content: 'Hello world uwu',
-        actions: YesOrNoAction
-      }
-
-      return message;
-  }
-
-  const helloWorldCommand: Command = new Command(
-    'hello-world',
-    'hello world command description :)',
-    [],// No arguments for this example...
-    helloWorldCommandHandler,
-  )
-
+// This is the example for the readme (update it first here then updated it in the README.md)
+export function ReadmeHelloWorld (): void {
   const myLogger = new XulLogger()
 
-  const mockCBootConfig: CBootConfig = {
-    port: env.PORT,
-    deploy: env.RUN_COMMAND_DEPLOYER,
-    clientKey: env.BOT_TOKEN,
-    clientId: env.CLIENT_ID,
-    serverId: env.GUILD_ID,
-    useImplementations: ['MockImplementation1', 'MockImplementation2'],
-    locale: 'en-US', // Assuming it's a locale string
-    theme: 'dark', // Assuming it's a theme string, replace with actual dummy value
+  // Configure command handlers
+  const helloWorldCommandHandler = (args: CommandCallbackArgs): cMessage => {
+    // Platform-agnostic reply
+    return {
+      theme: DefaultTheme,
+      content: 'Hello world =＾● ⋏ ●＾=',
+      actions: YesOrNoAction(
+        (payload: cActionContext) => {
+          myLogger.info('Yes Clicked')
+        },
+        (payload: cActionContext) => {
+          myLogger.info('No Clicked')
+        }
+      )
+    }
+  }
+
+  const helloWorldCommand: Command = {
+    name: 'hello-world',
+    description: 'hello world command description :)',
+    arguments: [], // No arguments for this example...
+    callback: helloWorldCommandHandler
+  }
+
+  const mockCBootConfig: cBootConfig = {
+    port: 7070,
+    deploy: true,
+    clientKey: process.env.DISCORD_BOT_TOKEN,
+    clientId: process.env.DISCORD_CLIENT_ID,
+    serverId: process.env.DISCORD_GUILD_ID,
     commands: [helloWorldCommand], // Fill with actual dummy Commands
     logger: myLogger
   }
 
   // Define the callback function to handle the bot startup
-  const onStarted = (args: OnStartedArgs) => {
+  const onStarted = (error: any, args: OnStartedArgs): void => {
+    if (error == null) {
+      myLogger.error(error)
+    }
     myLogger.info('onStarted: Add Additional logic after the bot has started')
   }
 
   // Start the bot
-  cBot.startBot(mockCBootConfig, onStarted)
+  startBot(mockCBootConfig, onStarted)
 }

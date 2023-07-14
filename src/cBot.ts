@@ -1,15 +1,12 @@
 import { DependencyManager } from './core/Dependency-manager'
-import { CBootConfig } from './models/CBootConfig'
-import { OnStartedArgs } from './models/OnStartedArgs'
+import { cBootConfig } from './api/cBotConfig'
+import { OnStartedArgs } from './api/OnStartedArgs'
 
-export class cBot {
-  static startBot (initArgs: CBootConfig, callback: (args: OnStartedArgs) => void): void {
-    //Intialize systems 
-    
-    const appInstance = new DependencyManager(initArgs)
-    appInstance.initialize()
-   
-    // User callback (todo remove mocking...)
-    callback({ port: initArgs.port, baseUrl: 'localhost' }) // Replace 8080 with the actual port
-  }
+export function startBot (initArgs: cBootConfig, callback: (error: any, args: OnStartedArgs) => void): void {
+  // Initialize systems
+  const appInstance = new DependencyManager(initArgs)
+  void appInstance.initialize()
+
+  // User callback (todo remove mocking...)
+  callback(null, { port: initArgs.port, baseUrl: 'localhost' })
 }

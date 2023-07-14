@@ -1,11 +1,11 @@
-import { CBootConfig } from '../../../models/CBootConfig'
-import { Command } from '../../../models/Command'
-import { DependencyManager } from '../../Dependency-manager'
-import { IConfigService } from '../interfaces/IConfigService'
-import { ILogger } from '../interfaces/ILogger'
+import { cBootConfig } from '../../api/cBotConfig'
+import { DependencyManager } from '../Dependency-manager'
+import { Command } from '../commands/api/Command'
+import { IConfigService } from './interfaces/IConfigService'
+import { ILogger } from './interfaces/ILogger'
 
 export class ConfigService implements IConfigService {
-  private configuration: CBootConfig | undefined
+  private readonly configuration: cBootConfig | undefined
   commands: never[]
 
   constructor () {
@@ -13,14 +13,12 @@ export class ConfigService implements IConfigService {
     this.commands = []
   }
 
-
-
   getLogger (): ILogger | undefined {
     return this.configuration?.logger
   }
 
   getCommands (): Command[] {
-    return this.commands;
+    return this.commands
   }
 
   // ISERVICE IMPL
