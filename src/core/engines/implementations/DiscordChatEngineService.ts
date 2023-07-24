@@ -1,6 +1,6 @@
 // File: ChatEngineService.ts
 import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType, CommandInteraction, RepliableInteraction } from 'discord.js'
-import { IChatEngineService } from '../IChatEngineService'
+import { ChatEngineService } from '../IChatEngineService'
 import { DependencyManager } from '../../Dependency-manager'
 import { ILogger } from '../../services/interfaces/ILogger'
 import { cBootConfig } from '../../config/models/cBotConfig'
@@ -12,7 +12,7 @@ import { CommandCallbackArgs } from '../../commands/api/CommandCallbackArgs'
 import { cMessage } from '../../messages/messages.module'
 import { GatewayIntentBits } from 'discord-api-types/v9'
 
-export class DiscordChatEngineService implements IChatEngineService {
+export class DiscordChatEngineService implements ChatEngineService {
   // FRAMEWORK
   private dependency: DependencyManager | undefined
   private logger: ILogger

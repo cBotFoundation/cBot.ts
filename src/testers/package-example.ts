@@ -53,7 +53,7 @@ export function ReadmeHelloWorld (): void {
 
   // Define the callback function to handle the bot startup
   const onStarted = (error: any): void => {
-    if (error == null) {
+    if (error != null) {
       myLogger.error(error)
     }
     myLogger.info('onStarted: Add Additional logic after the bot has started')
