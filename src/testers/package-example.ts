@@ -1,15 +1,14 @@
-import "../core/env"
+import '../core/env'
 
 // Framework imports (TODO: REFACTOR IMPORTS TO MAKE THIS SMALLER)
 import { startBot } from '../cBot'
-import { cBootConfig } from '../api/cBotConfig'
+import { cBootConfig } from '../core/config/models/cBotConfig'
 import { DefaultTheme } from '../core/messages/api/cTheme'
 import { cMessage } from '../core/messages/messages.module'
 import { YesOrNoAction } from '../core/messages/api/cAction'
 import cActionContext from '../core/messages/api/cActionContext'
 import { Command } from '../core/commands/api/Command'
 import { CommandCallbackArgs } from '../core/commands/api/CommandCallbackArgs'
-import { OnStartedArgs } from '../api/OnStartedArgs'
 
 // Optional imports
 import { XulLogger } from '../core/utils/xul-logger'
@@ -43,7 +42,7 @@ export function ReadmeHelloWorld (): void {
   }
 
   const mockCBootConfig: cBootConfig = {
-    port: 7070,
+    port: 8080,
     deploy: true,
     clientKey: process.env.DISCORD_BOT_TOKEN,
     clientId: process.env.DISCORD_CLIENT_ID,
@@ -53,7 +52,7 @@ export function ReadmeHelloWorld (): void {
   }
 
   // Define the callback function to handle the bot startup
-  const onStarted = (error: any, args: OnStartedArgs): void => {
+  const onStarted = (error: any): void => {
     if (error == null) {
       myLogger.error(error)
     }

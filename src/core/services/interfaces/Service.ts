@@ -1,10 +1,8 @@
-import { DependencyManager } from '../../core/Dependency-manager'
+import { DependencyManager } from '../../Dependency-manager'
 
-interface IService {
+export default interface Service {
   [x: string]: any
   init: (manager: DependencyManager) => void
   interval: () => void
   dispose: () => Promise<void>
 }
-
-export { IService }

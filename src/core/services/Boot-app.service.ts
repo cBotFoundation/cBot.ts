@@ -1,16 +1,16 @@
 import { DependencyManager } from '../Dependency-manager'
-import { IChatEngineService } from './interfaces/IChatEngineService'
-import { IBotAppService } from './interfaces/IBotAppService'
+import { ChatEngineService } from '../engines/IChatEngineService'
 import { ILogger } from './interfaces/ILogger'
 import { XulLogger } from '../utils/xul-logger'
-import { cBootConfig } from '../../api/cBotConfig'
-import { DiscordChatEngineService } from './DiscordChatEngineService'
+import { cBootConfig } from '../config/models/cBotConfig'
 import DiscordCommandDeployer from '../commands/deployment/DiscordCommandDeployer'
+import Service from './interfaces/Service'
+import { DiscordChatEngineService } from '../engines/implementations/DiscordChatEngineService'
 
-export class BotAppService implements IBotAppService {
+export class BotAppService implements Service {
   private readonly logger: ILogger
   private bootConfig: cBootConfig | undefined
-  private readonly chatEngine: IChatEngineService
+  private readonly chatEngine: ChatEngineService
 
   constructor () {
     this.logger = new XulLogger()// TODO: TESTING ONLY REMOVE!!!
@@ -30,14 +30,6 @@ export class BotAppService implements IBotAppService {
     } else {
       this.logger.warn('Starting bot without deploying commands....')
     }
-  }
-
-  async deployChatCommands (): Promise<void> {
-
-  }
-
-  getCurrentChatEngine (): IChatEngineService {
-    return this.chatEngine
   }
 
   async dispose (): Promise<void> {

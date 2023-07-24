@@ -1,22 +1,20 @@
-import ICommandDeployer from '../api/interfaces/ICommandDeployer'
-
-// DISCORD SPECIFIC IMPORTS
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
 import { DependencyManager } from '../../Dependency-manager'
 import { ILogger } from '../../services/interfaces/ILogger'
-import { cBootConfig } from '../../../api/cBotConfig'
-import { IChatEngineService } from '../../services/interfaces/IChatEngineService'
+import { cBootConfig } from '../../config/models/cBotConfig'
+import { ChatEngineService } from '../../engines/IChatEngineService'
 import { Command } from '../api/Command'
+import CommandDeployer from '../api/interfaces/CommandDeployer'
 
-export default class DiscordCommandDeployer implements ICommandDeployer {
+export default class DiscordCommandDeployer implements CommandDeployer {
   private readonly bootConfig: cBootConfig
   private readonly logger: ILogger
-  private readonly chatEngine: IChatEngineService
+  private readonly chatEngine: ChatEngineService
   private readonly rest!: REST
 
-  constructor (dependency: DependencyManager, engine: IChatEngineService) {
+  constructor (dependency: DependencyManager, engine: ChatEngineService) {
     this.bootConfig = dependency.getConfiguration()
     this.logger = this.bootConfig.logger
     this.chatEngine = engine

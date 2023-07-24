@@ -1,5 +1,5 @@
-import { Command } from '../core/commands/api/Command'
-import { ILogger } from '../core/services/interfaces/ILogger'
+import { Command } from '../../commands/api/Command'
+import { ILogger } from '../../services/interfaces/ILogger'
 
 // TODO: REFACTOR CONFIGURATIONS, SUCJ CLIENTID, SERVER ID AND MAKE DEFAULTS...
 export interface cBootConfig {

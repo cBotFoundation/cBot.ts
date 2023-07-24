@@ -1,9 +1,9 @@
 
-import { IService } from '../../api/interfaces/IService'
+import Service from './interfaces/Service'
 import { BotAppService } from './Boot-app.service'
-import { ConfigService } from './ConfigService'
+import { ConfigService } from '../config/ConfigService'
 
-export const coreServices: Array<new () => IService> = [
+export const coreServices: Array<new () => Service> = [
   ConfigService,
-  BotAppService,
+  BotAppService
 ]

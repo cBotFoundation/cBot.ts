@@ -1,10 +1,10 @@
-import { cBootConfig } from '../../api/cBotConfig'
+import { cBootConfig } from './models/cBotConfig'
 import { DependencyManager } from '../Dependency-manager'
 import { Command } from '../commands/api/Command'
-import { IConfigService } from './interfaces/IConfigService'
-import { ILogger } from './interfaces/ILogger'
+import { ILogger } from '../services/interfaces/ILogger'
+import Service from '../services/interfaces/Service'
 
-export class ConfigService implements IConfigService {
+export class ConfigService implements Service {
   private readonly configuration: cBootConfig | undefined
   commands: never[]
 
@@ -21,7 +21,7 @@ export class ConfigService implements IConfigService {
     return this.commands
   }
 
-  // ISERVICE IMPL
+  // SERVICE IMPL
   async init (dependency: DependencyManager): Promise<void> {
     // Initialization logic, if any
   }

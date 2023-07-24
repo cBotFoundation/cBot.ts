@@ -1,10 +1,10 @@
-import { Command } from '../../commands/api/Command'
-import { cMessage } from '../../messages/messages.module'
-import { IService } from '../../../api/interfaces/IService'
-import { CoreEventsType } from '../models/CoreEvents'
+import { Command } from '../commands/api/Command'
+import { cMessage } from '../messages/messages.module'
+import { CoreEventsType } from '../services/models/CoreEvents'
+import Service from '../services/interfaces/Service'
 
 // TODO: CREATE ALL ARGUMENTS AS REGISTRABLE LAMDAS
-export interface IChatEngineService extends IService {
+export interface ChatEngineService extends Service {
   useCommands: (commands: Command[]) => void
   login: (token: string) => void
   logout: () => void

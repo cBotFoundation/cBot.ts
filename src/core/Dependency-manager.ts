@@ -1,5 +1,5 @@
-import { cBootConfig } from '../api/cBotConfig'
-import { IService } from '../api/interfaces/IService'
+import { cBootConfig } from './config/models/cBotConfig'
+import Service from './services/interfaces/Service'
 import { coreServices } from './services/Services.module'
 import { ILogger } from './services/interfaces/ILogger'
 import { XulLogger } from './utils/xul-logger'
@@ -23,7 +23,7 @@ class DependencyManager {
     this.disposeHooks = []
   }
 
-  configreService (service: IService): void {
+  configreService (service: Service): void {
     try {
       const serviceName = service.constructor.name.replace('Service', '')
 
@@ -65,7 +65,7 @@ class DependencyManager {
 
   async initialize (): Promise<void> {
     // Core services
-    coreServices.forEach((ServiceClass: new () => IService) => {
+    coreServices.forEach((ServiceClass: new () => Service) => {
       const serviceInstance = new ServiceClass()
       this.configreService(serviceInstance)
     })
