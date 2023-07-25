@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "test": "ts-standard --fix && echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --require ts-node/register test/**/*.ts",
     "build": "tsc",
     "prepublishOnly": "tsc",
     "lint": "ts-standard --fix",
@@ -30,6 +30,11 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "ts-node": "^10.9.1",
     "ts-standard": "^12.0.2",
     "husky": "^8.0.0"
   }
