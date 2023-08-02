@@ -1,7 +1,7 @@
 import { ApplicationManager } from '../ApplicationManager'
 import { ChatEngineService } from '../engines/IChatEngineService'
 import { ILogger } from './interfaces/ILogger'
-import { XulLogger } from '../utils/xul-logger'
+import { XulLogger } from '../../utils/xul-logger'
 import { cBootConfig } from '../config/models/cBotConfig'
 import DiscordCommandDeployer from '../commands/deployment/DiscordCommandDeployer'
 import Service from './interfaces/Service'

@@ -2,7 +2,7 @@ import { cBootConfig } from './config/models/cBotConfig'
 import Service from './services/interfaces/Service'
 import { coreServices } from './services/Services.module'
 import { ILogger } from './services/interfaces/ILogger'
-import { XulLogger } from './utils/xul-logger'
+import { XulLogger } from '../utils/xul-logger'
 
 class ApplicationManager {
   private readonly instancedServices: Map<string, any>

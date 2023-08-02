@@ -1,4 +1,4 @@
-import '../core/env'
+import '../utils/env'
 
 // Framework imports (TODO: REFACTOR IMPORTS TO MAKE THIS SMALLER)
 import { startBot } from '../cBot'
@@ -11,7 +11,7 @@ import { Command } from '../core/commands/api/Command'
 import { CommandCallbackArgs } from '../core/commands/api/CommandCallbackArgs'
 
 // Optional imports
-import { XulLogger } from '../core/utils/xul-logger'
+import { XulLogger } from '../utils/xul-logger'
 
 // This is the example for the readme (update it first here then updated it in the README.md)
 export function ReadmeHelloWorld (): void {

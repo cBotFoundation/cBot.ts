@@ -35,7 +35,7 @@
   },
   "ts-standard": {
     "ignore": [
-      "/src/core/env.ts"
+      "/src/utils/env.ts"
     ]
   }
 }

@@ -1,5 +1,5 @@
 import * as log4js from 'log4js'
-import { ILogger } from '../services/interfaces/ILogger'
+import { ILogger } from '../core/services/interfaces/ILogger'
 
 export class XulLogger implements ILogger {
   private readonly logger: any
