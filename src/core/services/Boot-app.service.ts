@@ -1,4 +1,4 @@
-import { DependencyManager } from '../Dependency-manager'
+import { ApplicationManager } from '../ApplicationManager'
 import { ChatEngineService } from '../engines/IChatEngineService'
 import { ILogger } from './interfaces/ILogger'
 import { XulLogger } from '../utils/xul-logger'
@@ -19,7 +19,7 @@ export class BotAppService implements Service {
     this.init = this.init.bind(this)
   }
 
-  async init (dependency: DependencyManager): Promise<void> {
+  async init (dependency: ApplicationManager): Promise<void> {
     const botCommands = new DiscordCommandDeployer(dependency, this.chatEngine) // TODO: DISCORD SPECIFIC MOCKING INSTANCE, REMOVE!!!
     this.bootConfig = dependency.getConfiguration()
     this.chatEngine.init(dependency)// TODO: MOCKING  PROPUSES ONLY

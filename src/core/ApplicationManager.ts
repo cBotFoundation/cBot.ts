@@ -4,10 +4,9 @@ import { coreServices } from './services/Services.module'
 import { ILogger } from './services/interfaces/ILogger'
 import { XulLogger } from './utils/xul-logger'
 
-// TODO: RENAME THIS TO CONTEXT MANAGER?
-class DependencyManager {
+class ApplicationManager {
   private readonly instancedServices: Map<string, any>
-  private readonly startHooks: Array<{ serviceName: string, hook: (manager: DependencyManager) => void }>
+  private readonly startHooks: Array<{ serviceName: string, hook: (manager: ApplicationManager) => void }>
   private readonly intervalHooks: Array<() => void>
   private readonly disposeHooks: Array<() => Promise<void>>
   private readonly logger: ILogger
@@ -23,7 +22,7 @@ class DependencyManager {
     this.disposeHooks = []
   }
 
-  configreService (service: Service): void {
+  private configureService (service: Service): void {
     try {
       const serviceName = service.constructor.name.replace('Service', '')
 
@@ -36,7 +35,7 @@ class DependencyManager {
     }
   }
 
-  invokeStartHooks (): void {
+  private invokeStartHooks (): void {
     try {
       this.startHooks.forEach((meta) => {
         meta.hook(this)
@@ -50,7 +49,7 @@ class DependencyManager {
     }
   }
 
-  async invokeDisposeHooks (): Promise<void> {
+  private async invokeDisposeHooks (): Promise<void> {
     try {
       for (const hook of this.disposeHooks) {
         await hook()
@@ -67,16 +66,16 @@ class DependencyManager {
     // Core services
     coreServices.forEach((ServiceClass: new () => Service) => {
       const serviceInstance = new ServiceClass()
-      this.configreService(serviceInstance)
+      this.configureService(serviceInstance)
     })
 
     this.invokeStartHooks()
 
-    // todo: fixe proceess dep
-    // process.on('exit', async (code) => {
-    //   this.logger.error("exit code: " + code);
-    //   await this.invokeDisposeHooks();
-    // });
+    // todo: extract and enhance to cover all possible exit events
+    process.on('exit', (code) => {
+      this.logger.error(`exit code: ${code}`)
+      void this.invokeDisposeHooks()
+    })
   }
 
   async restart (): Promise<void> {
@@ -93,4 +92,4 @@ class DependencyManager {
   }
 }
 
-export { DependencyManager }
+export { ApplicationManager }

@@ -1,8 +1,8 @@
-import { DependencyManager } from '../../Dependency-manager'
+import { ApplicationManager } from '../../ApplicationManager'
 
 export default interface Service {
   [x: string]: any
-  init: (manager: DependencyManager) => void
+  init: (manager: ApplicationManager) => void
   interval: () => void
   dispose: () => Promise<void>
 }

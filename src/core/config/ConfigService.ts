@@ -1,5 +1,5 @@
 import { cBootConfig } from './models/cBotConfig'
-import { DependencyManager } from '../Dependency-manager'
+import { ApplicationManager } from '../ApplicationManager'
 import { Command } from '../commands/api/Command'
 import { ILogger } from '../services/interfaces/ILogger'
 import Service from '../services/interfaces/Service'
@@ -22,7 +22,7 @@ export class ConfigService implements Service {
   }
 
   // SERVICE IMPL
-  async init (dependency: DependencyManager): Promise<void> {
+  async init (dependency: ApplicationManager): Promise<void> {
     // Initialization logic, if any
   }
 

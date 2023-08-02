@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
-import { DependencyManager } from '../../Dependency-manager'
+import { ApplicationManager } from '../../ApplicationManager'
 import { ILogger } from '../../services/interfaces/ILogger'
 import { cBootConfig } from '../../config/models/cBotConfig'
 import { ChatEngineService } from '../../engines/IChatEngineService'
@@ -14,7 +14,7 @@ export default class DiscordCommandDeployer implements CommandDeployer {
   private readonly chatEngine: ChatEngineService
   private readonly rest!: REST
 
-  constructor (dependency: DependencyManager, engine: ChatEngineService) {
+  constructor (dependency: ApplicationManager, engine: ChatEngineService) {
     this.bootConfig = dependency.getConfiguration()
     this.logger = this.bootConfig.logger
     this.chatEngine = engine

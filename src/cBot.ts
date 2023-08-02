@@ -1,9 +1,9 @@
-import { DependencyManager } from './core/Dependency-manager'
+import { ApplicationManager } from './core/ApplicationManager'
 import { cBootConfig } from './core/config/models/cBotConfig'
 
 export function startBot (initArgs: cBootConfig, callback: (error: any) => void): void {
   // Initialize systems
-  const appInstance = new DependencyManager(initArgs)
+  const appInstance = new ApplicationManager(initArgs)
   void appInstance.initialize()
 
   callback(null)
