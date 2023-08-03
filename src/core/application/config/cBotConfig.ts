@@ -9,11 +9,12 @@ export interface cBootConfig {
   discordClientKey?: string
   discordClientId?: string
   discordServerId?: string
+  telegramToken?: string
   commands?: Command[]
   logger?: Logger
 }
 
-export function assertConfigurationHasDiscordProperties (configuration: cBootConfig): asserts configuration is cBootConfig & {
+export function assertDiscordProperties (configuration: cBootConfig): asserts configuration is cBootConfig & {
   discordClientKey: string
   discordClientId: string
   discordServerId: string
@@ -28,5 +29,13 @@ export function assertConfigurationHasDiscordProperties (configuration: cBootCon
 
   if (configuration.discordServerId == null) {
     throw Error('Discord Implementation is enabled but discordServerId isn\'t defined')
+  }
+}
+
+export function assertTelegramProperties (configuration: cBootConfig): asserts configuration is cBootConfig & {
+  telegramToken: string
+} {
+  if (configuration.telegramToken == null) {
+    throw Error('Telegram Implementation is enabled but telegramToken isn\'t defined')
   }
 }

@@ -5,9 +5,7 @@ import Service from '../services/interfaces/Service'
 
 // TODO: CREATE ALL ARGUMENTS AS REGISTRABLE LAMDAS
 export interface ChatEngineService extends Service {
-  useCommands: (commands: Command[]) => void
-  login: (token: string) => void
-  logout: () => void
+  deployCommands: (commands: Command[]) => void
   replyMessage: (origin: any, message: cMessage) => void
   sendMessage: (channelId: string, message: cMessage) => void
   isChatEventImplemented: (eventName: CoreEventsType) => boolean

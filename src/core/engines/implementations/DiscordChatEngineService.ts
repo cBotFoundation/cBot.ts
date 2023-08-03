@@ -1,33 +1,42 @@
-import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType, CommandInteraction, RepliableInteraction } from 'discord.js'
+import {
+  Client,
+  Interaction,
+  Guild,
+  GuildMember,
+  Message,
+  GuildBan,
+  CacheType,
+  CommandInteraction,
+  RepliableInteraction, REST
+} from 'discord.js'
 import { ChatEngineService } from '../ChatEngineService'
 import { Logger } from '../../services/interfaces/Logger'
-import { assertConfigurationHasDiscordProperties, cBootConfig } from '../../application/config/cBotConfig'
+import { assertDiscordProperties, cBootConfig } from '../../application/config/cBotConfig'
 import { Command } from '../../commands/api/Command'
 import DiscordMessageFactory from '../../messages/factory/DiscordMessageFactory'
 import { CoreEventsType } from '../../services/models/CoreEvents'
-import { XulLogger } from '../../../utils/xul-logger'
+import { Routes, GatewayIntentBits } from 'discord-api-types/v9'
 import { CommandCallbackArgs } from '../../commands/api/CommandCallbackArgs'
 import { cMessage } from '../../messages/messages.module'
-import { GatewayIntentBits } from 'discord-api-types/v9'
+
 import ApplicationContext from '../../application/ApplicationContext'
-import DiscordCommandDeployer from '../../commands/deployment/DiscordCommandDeployer'
+import buildDiscordSlashCommand from '../../commands/builders/DiscordCommandBuilder'
 
 export class DiscordChatEngineService implements ChatEngineService {
   // FRAMEWORK
   public readonly name = 'DiscordChatEngine'
-  private dependency: ApplicationContext | undefined
-  private logger: Logger
+  private applicationContext!: ApplicationContext
+  private logger!: Logger
   private bootConfig!: cBootConfig
-  private commands: Command[] = []
   // DISCORD
   private readonly discordClient: Client
   private readonly messageFactory: DiscordMessageFactory
   // Events
   private readonly underlyingEvents: Map<CoreEventsType, (args: any) => void> // Discord implemented events
   private readonly clientFrameWorkEvents: Map<CoreEventsType, (args: any) => void> // User level events
+  private readonly commands: Command[] = []
 
   constructor () {
-    this.logger = new XulLogger() // TODO: WIP INSTANCE
     this.messageFactory = new DiscordMessageFactory()
 
     this.underlyingEvents = new Map<CoreEventsType, (args: any) => void>()
@@ -176,21 +185,9 @@ export class DiscordChatEngineService implements ChatEngineService {
   onMessage (message: Message): void {
     this.logger.info(`bot received message: #${message.id} - from ${message.author.id}`)
 
-    if (!message.author.bot) { void message.author.send('ok::::::' + message.author.id) }
-  }
-
-  useCommands (commands: Command[]): void {
-    this.logger.warn(`Commands to use #: ${commands.length}`)
-    this.commands = commands
-  }
-
-  login (token: string): void {
-    this.logger.warn('Authenticating discord client...')
-    this.discordClient.login(token).catch((r: string) => this.logger.info(`Bot couldn't log in ${r}`)) // todo: check whatever this returns
-  }
-
-  logout (): void {
-    this.discordClient.destroy()
+    if (!message.author.bot) {
+      void message.author.send('ok::::::' + message.author.id)
+    }
   }
 
   async handleCommand (interaction: CommandInteraction): Promise<void> {
@@ -201,7 +198,7 @@ export class DiscordChatEngineService implements ChatEngineService {
       throw new Error('Command not found')
     }
 
-    const args: CommandCallbackArgs = { interaction, dependency: this.dependency }
+    const args: CommandCallbackArgs = { interaction, dependency: this.applicationContext }
     const reply = command.callback(args)
 
     if (reply == null) return // continue if handle has a message to send
@@ -225,7 +222,7 @@ export class DiscordChatEngineService implements ChatEngineService {
 
         if (response.customId === action.name && isInteractive) {
           // TODO: Pass context to callback for further communication
-          action.actionCall({ dependency: this.dependency, context: origin })
+          action.actionCall({ dependency: this.applicationContext, context: origin })
           await origin.editReply({ components: [] })
         }
       }
@@ -279,30 +276,48 @@ export class DiscordChatEngineService implements ChatEngineService {
     }
   }
 
-  // IService
-  init (dependency: ApplicationContext): void {
+  init (applicationContext: ApplicationContext): void {
     // Get logger and boot config
-    this.logger = dependency.getLogger()
-    this.dependency = dependency
-    this.bootConfig = dependency.getConfiguration()
-    assertConfigurationHasDiscordProperties(dependency.getConfiguration())
-    const commandDeployer = new DiscordCommandDeployer(dependency, this)
+    this.applicationContext = applicationContext
+    this.logger = this.applicationContext.getLogger()
+    this.bootConfig = this.applicationContext.getConfiguration()
+    assertDiscordProperties(this.bootConfig)
 
     // Register core events
     this.registerEvents()
     // Initialize discord listeners
     this.initializeDiscordListeners()
 
+    if (this.bootConfig.commands != null) {
+      // Deploy commands
+      void this.deployCommands(this.bootConfig.commands)
+    }
+
     // Bot login: clientkey = process.env.BOT_TOKEN (required by discord)
     this.discordClient.login(this.bootConfig.discordClientKey).catch((res: string) => {
       this.logger.error(`Bot couldn't log in: ${res}`)
     })
+  }
 
-    // Deploy commands to be visible on the server slash commands list (only needed once atleast on discord)
-    if (this.bootConfig.freshDeploy) {
-      void commandDeployer.deploy()
-    } else {
-      this.logger.warn('Starting bot without deploying commands....')
+  async deployCommands (commands: Command[]): Promise<void> {
+    try {
+      assertDiscordProperties(this.bootConfig)
+      this.logger.info('Starting to deploy application commands.')
+
+      this.commands.push(...commands)
+      const deployCommands = commands?.map((cmd) => {
+        return buildDiscordSlashCommand(cmd).toJSON()
+      })
+
+      const rest = new REST({ version: '8' }).setToken(this.bootConfig.discordClientKey)
+      await rest.put(Routes.applicationGuildCommands(this.bootConfig.discordClientId, this.bootConfig.discordServerId),
+        { body: deployCommands })
+
+      this.logger.info('Successfully reloaded application (/) commands.')
+    } catch (error) {
+      let message = 'Unknown'
+      if (error instanceof Error) message = error.message
+      this.logger.error(`Cannot deploy commands due: ${message}`)
     }
   }
 
