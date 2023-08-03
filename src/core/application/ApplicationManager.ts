@@ -15,7 +15,7 @@ export default class ApplicationManager {
 
   constructor (configuration: cBootConfig) {
     this.configuration = configuration
-    this.logger = (configuration.logger != null) || new XulLogger() // TODO: Replace for a better logging solution
+    this.logger = configuration.logger || new XulLogger() // TODO: Replace for a better logging solution
     this.applicationContext = new ApplicationContext(configuration, this.logger)
     this.startHooks = []
     this.intervalHooks = []
