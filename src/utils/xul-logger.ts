@@ -1,7 +1,7 @@
 import * as log4js from 'log4js'
-import { ILogger } from '../core/services/interfaces/ILogger'
+import { Logger } from '../core/services/interfaces/Logger'
 
-export class XulLogger implements ILogger {
+export class XulLogger implements Logger {
   private readonly logger: any
 
   constructor () {

@@ -2,7 +2,7 @@ import '../utils/env'
 
 // Framework imports (TODO: REFACTOR IMPORTS TO MAKE THIS SMALLER)
 import { startBot } from '../cBot'
-import { cBootConfig } from '../core/config/models/cBotConfig'
+import { cBootConfig } from '../core/application/config/cBotConfig'
 import { DefaultTheme } from '../core/messages/api/cTheme'
 import { cMessage } from '../core/messages/messages.module'
 import { YesOrNoAction } from '../core/messages/api/cAction'
@@ -42,11 +42,12 @@ export function ReadmeHelloWorld (): void {
   }
 
   const mockCBootConfig: cBootConfig = {
+    botImplementations: ['DiscordImplementation'],
     port: 8080,
-    deploy: true,
-    clientKey: process.env.DISCORD_BOT_TOKEN,
-    clientId: process.env.DISCORD_CLIENT_ID,
-    serverId: process.env.DISCORD_GUILD_ID,
+    freshDeploy: true,
+    discordClientKey: process.env.DISCORD_BOT_TOKEN,
+    discordClientId: process.env.DISCORD_CLIENT_ID,
+    discordServerId: process.env.DISCORD_GUILD_ID,
     commands: [helloWorldCommand], // Fill with actual dummy Commands
     logger: myLogger
   }

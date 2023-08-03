@@ -1,8 +1,8 @@
-import { ApplicationManager } from '../../ApplicationManager'
+import ApplicationContext from '../../application/ApplicationContext'
 
 export default interface Service {
-  [x: string]: any
-  init: (manager: ApplicationManager) => void
+  name: string
+  init: (manager: ApplicationContext) => void
   interval: () => void
   dispose: () => Promise<void>
 }

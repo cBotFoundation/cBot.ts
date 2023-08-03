@@ -1,4 +1,4 @@
-import { ApplicationManager } from '../../ApplicationManager'
+import { ApplicationManager } from '../../application/ApplicationManager'
 import { CommandInteraction, RepliableInteraction } from 'discord.js'
 
 export default interface cActionContext {

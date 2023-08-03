@@ -1,25 +1,26 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
-import { ApplicationManager } from '../../ApplicationManager'
-import { ILogger } from '../../services/interfaces/ILogger'
-import { cBootConfig } from '../../config/models/cBotConfig'
-import { ChatEngineService } from '../../engines/IChatEngineService'
+import { Logger } from '../../services/interfaces/Logger'
+import { assertConfigurationHasDiscordProperties, cBootConfig } from '../../application/config/cBotConfig'
+import { ChatEngineService } from '../../engines/ChatEngineService'
 import { Command } from '../api/Command'
 import CommandDeployer from '../api/interfaces/CommandDeployer'
+import ApplicationContext from '../../application/ApplicationContext'
 
 export default class DiscordCommandDeployer implements CommandDeployer {
   private readonly bootConfig: cBootConfig
-  private readonly logger: ILogger
+  private readonly logger: Logger
   private readonly chatEngine: ChatEngineService
   private readonly rest!: REST
 
-  constructor (dependency: ApplicationManager, engine: ChatEngineService) {
+  constructor (dependency: ApplicationContext, engine: ChatEngineService) {
     this.bootConfig = dependency.getConfiguration()
-    this.logger = this.bootConfig.logger
+    this.logger = dependency.getLogger()
     this.chatEngine = engine
+    assertConfigurationHasDiscordProperties(this.bootConfig)
 
-    this.rest = new REST({ version: '8' }).setToken(this.bootConfig.clientKey)
+    this.rest = new REST({ version: '8' }).setToken(this.bootConfig.discordClientKey)
   }
 
   async deploy (): Promise<void> {
@@ -28,6 +29,9 @@ export default class DiscordCommandDeployer implements CommandDeployer {
       // Discord js slash builder
 
       const baseCommands = this.bootConfig?.commands
+
+      if (baseCommands == null) return
+
       const deployCommands = baseCommands?.map((cmd) => {
         return this.buildDiscordSlashCommand(cmd).toJSON()
       })
@@ -36,7 +40,8 @@ export default class DiscordCommandDeployer implements CommandDeployer {
       this.chatEngine.useCommands(baseCommands)
 
       // TODO: FIX THIS BELOW (re implemnet this call on ts) !!!!
-      await this.rest.put(Routes.applicationGuildCommands(this.bootConfig.clientId, this.bootConfig.serverId),
+      // @ts-expect-error
+      await this.rest.put(Routes.applicationGuildCommands(this.bootConfig.discordClientId, this.bootConfig.discordServerId),
         { body: deployCommands })
 
       this.logger.info('Successfully reloaded application (/) commands.')

@@ -1,9 +1,7 @@
-// File: ChatEngineService.ts
 import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType, CommandInteraction, RepliableInteraction } from 'discord.js'
-import { ChatEngineService } from '../IChatEngineService'
-import { ApplicationManager } from '../../ApplicationManager'
-import { ILogger } from '../../services/interfaces/ILogger'
-import { cBootConfig } from '../../config/models/cBotConfig'
+import { ChatEngineService } from '../ChatEngineService'
+import { Logger } from '../../services/interfaces/Logger'
+import { assertConfigurationHasDiscordProperties, cBootConfig } from '../../application/config/cBotConfig'
 import { Command } from '../../commands/api/Command'
 import DiscordMessageFactory from '../../messages/factory/DiscordMessageFactory'
 import { CoreEventsType } from '../../services/models/CoreEvents'
@@ -11,11 +9,14 @@ import { XulLogger } from '../../../utils/xul-logger'
 import { CommandCallbackArgs } from '../../commands/api/CommandCallbackArgs'
 import { cMessage } from '../../messages/messages.module'
 import { GatewayIntentBits } from 'discord-api-types/v9'
+import ApplicationContext from '../../application/ApplicationContext'
+import DiscordCommandDeployer from '../../commands/deployment/DiscordCommandDeployer'
 
 export class DiscordChatEngineService implements ChatEngineService {
   // FRAMEWORK
-  private dependency: ApplicationManager | undefined
-  private logger: ILogger
+  public readonly name = 'DiscordChatEngine'
+  private dependency: ApplicationContext | undefined
+  private logger: Logger
   private bootConfig!: cBootConfig
   private commands: Command[] = []
   // DISCORD
@@ -279,11 +280,13 @@ export class DiscordChatEngineService implements ChatEngineService {
   }
 
   // IService
-  init (dependency: ApplicationManager): void {
+  init (dependency: ApplicationContext): void {
     // Get logger and boot config
+    this.logger = dependency.getLogger()
     this.dependency = dependency
     this.bootConfig = dependency.getConfiguration()
-    this.logger = this.bootConfig.logger
+    assertConfigurationHasDiscordProperties(dependency.getConfiguration())
+    const commandDeployer = new DiscordCommandDeployer(dependency, this)
 
     // Register core events
     this.registerEvents()
@@ -291,9 +294,16 @@ export class DiscordChatEngineService implements ChatEngineService {
     this.initializeDiscordListeners()
 
     // Bot login: clientkey = process.env.BOT_TOKEN (required by discord)
-    this.discordClient.login(this.bootConfig.clientKey).catch((res: string) => {
+    this.discordClient.login(this.bootConfig.discordClientKey).catch((res: string) => {
       this.logger.error(`Bot couldn't log in: ${res}`)
     })
+
+    // Deploy commands to be visible on the server slash commands list (only needed once atleast on discord)
+    if (this.bootConfig.freshDeploy) {
+      void commandDeployer.deploy()
+    } else {
+      this.logger.warn('Starting bot without deploying commands....')
+    }
   }
 
   async dispose (): Promise<void> {
