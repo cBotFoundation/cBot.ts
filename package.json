@@ -9,7 +9,8 @@
     "test": "ts-standard --fix && echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "prepublishOnly": "tsc",
-    "lint": "ts-standard --fix",
+    "lint": "ts-standard",
+    "fix-lint": "ts-standard --fix",
     "prepare": "husky install"
   },
   "keywords": [],
