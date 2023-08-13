@@ -1,5 +1,4 @@
-
-import { CommandArgType } from './CommandArgTypes'
+import {CommandArgType} from './CommandArgTypes'
 
 export interface CommandArg {
   argName: string
