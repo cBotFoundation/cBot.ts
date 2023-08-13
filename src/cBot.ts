@@ -1,12 +1,10 @@
-import { DependencyManager } from './core/Dependency-manager'
-import { cBootConfig } from './api/cBotConfig'
-import { OnStartedArgs } from './api/OnStartedArgs'
+import ApplicationManager from './core/application/ApplicationManager'
+import { cBootConfig } from './core/application/config/cBotConfig'
 
-export function startBot (initArgs: cBootConfig, callback: (error: any, args: OnStartedArgs) => void): void {
+export function startBot (initArgs: cBootConfig, callback: (error: any) => void): void {
   // Initialize systems
-  const appInstance = new DependencyManager(initArgs)
+  const appInstance = new ApplicationManager(initArgs)
   void appInstance.initialize()
 
-  // User callback (todo remove mocking...)
-  callback(null, { port: initArgs.port, baseUrl: 'localhost' })
+  callback(null)
 }

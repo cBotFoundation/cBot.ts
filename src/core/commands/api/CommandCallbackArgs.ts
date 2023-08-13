@@ -1,7 +1,9 @@
 import { CommandInteraction } from 'discord.js'
-import { DependencyManager } from '../../Dependency-manager'
+import ApplicationContext from '../../application/ApplicationContext'
+import { CommandContext, Context } from 'grammy'
 
+export type PlatformCommandContext = CommandInteraction | CommandContext<Context>
 export interface CommandCallbackArgs {
-  interaction: CommandInteraction// Discord only
-  dependency: DependencyManager | undefined
+  interaction: PlatformCommandContext
+  dependency: ApplicationContext | undefined
 }

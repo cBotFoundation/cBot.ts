@@ -1,18 +1,17 @@
-import "../core/env"
+import '../utils/env'
 
 // Framework imports (TODO: REFACTOR IMPORTS TO MAKE THIS SMALLER)
 import { startBot } from '../cBot'
-import { cBootConfig } from '../api/cBotConfig'
+import { cBootConfig } from '../core/application/config/cBotConfig'
 import { DefaultTheme } from '../core/messages/api/cTheme'
 import { cMessage } from '../core/messages/messages.module'
 import { YesOrNoAction } from '../core/messages/api/cAction'
 import cActionContext from '../core/messages/api/cActionContext'
 import { Command } from '../core/commands/api/Command'
 import { CommandCallbackArgs } from '../core/commands/api/CommandCallbackArgs'
-import { OnStartedArgs } from '../api/OnStartedArgs'
 
 // Optional imports
-import { XulLogger } from '../core/utils/xul-logger'
+import { XulLogger } from '../utils/xul-logger'
 
 // This is the example for the readme (update it first here then updated it in the README.md)
 export function ReadmeHelloWorld (): void {
@@ -36,25 +35,27 @@ export function ReadmeHelloWorld (): void {
   }
 
   const helloWorldCommand: Command = {
-    name: 'hello-world',
+    name: 'hello',
     description: 'hello world command description :)',
     arguments: [], // No arguments for this example...
     callback: helloWorldCommandHandler
   }
 
   const mockCBootConfig: cBootConfig = {
-    port: 7070,
-    deploy: true,
-    clientKey: process.env.DISCORD_BOT_TOKEN,
-    clientId: process.env.DISCORD_CLIENT_ID,
-    serverId: process.env.DISCORD_GUILD_ID,
+    botImplementations: ['DiscordImplementation', 'TelegramImplementation'],
+    port: 8080,
+    freshDeploy: true,
+    discordClientKey: process.env.DISCORD_BOT_TOKEN,
+    discordClientId: process.env.DISCORD_CLIENT_ID,
+    discordServerId: process.env.DISCORD_GUILD_ID,
+    telegramToken: process.env.TELEGRAM_TOKEN,
     commands: [helloWorldCommand], // Fill with actual dummy Commands
     logger: myLogger
   }
 
   // Define the callback function to handle the bot startup
-  const onStarted = (error: any, args: OnStartedArgs): void => {
-    if (error == null) {
+  const onStarted = (error: any): void => {
+    if (error != null) {
       myLogger.error(error)
     }
     myLogger.info('onStarted: Add Additional logic after the bot has started')

@@ -1,23 +1,28 @@
-// File: ChatEngineService.ts
-import { Client, Interaction, Guild, GuildMember, Message, GuildBan, CacheType, CommandInteraction, RepliableInteraction } from 'discord.js'
-import { IChatEngineService } from './interfaces/IChatEngineService'
-import { DependencyManager } from '../Dependency-manager'
-import { ILogger } from './interfaces/ILogger'
-import { cBootConfig } from '../../api/cBotConfig'
-import { Command } from '../commands/api/Command'
-import DiscordMessageFactory from '../messages/factory/DiscordMessageFactory'
-import { CoreEventsType } from './models/CoreEvents'
-import { XulLogger } from '../utils/xul-logger'
-import { CommandCallbackArgs } from '../commands/api/CommandCallbackArgs'
-import { cMessage } from '../messages/messages.module'
-import { GatewayIntentBits } from 'discord-api-types/v9'
+import {
+  Client,
+  Interaction,
+  Guild,
+  GuildMember,
+  Message,
+  GuildBan,
+  CacheType,
+  CommandInteraction,
+  RepliableInteraction, REST
+} from 'discord.js'
+import ChatEngineService from '../ChatEngineService'
+import { assertDiscordProperties } from '../../application/config/cBotConfig'
+import { Command } from '../../commands/api/Command'
+import DiscordMessageFactory from '../../messages/factory/DiscordMessageFactory'
+import { CoreEventsType } from '../../services/models/CoreEvents'
+import { Routes, GatewayIntentBits } from 'discord-api-types/v9'
+import { cMessage } from '../../messages/messages.module'
 
-export class DiscordChatEngineService implements IChatEngineService {
+import ApplicationContext from '../../application/ApplicationContext'
+import buildDiscordSlashCommand from '../../commands/builders/DiscordCommandBuilder'
+
+export class DiscordChatEngineService extends ChatEngineService {
   // FRAMEWORK
-  private dependency: DependencyManager | undefined
-  private logger: ILogger
-  private bootConfig!: cBootConfig
-  private commands: Command[] = []
+  public readonly name = 'DiscordChatEngine'
   // DISCORD
   private readonly discordClient: Client
   private readonly messageFactory: DiscordMessageFactory
@@ -26,7 +31,7 @@ export class DiscordChatEngineService implements IChatEngineService {
   private readonly clientFrameWorkEvents: Map<CoreEventsType, (args: any) => void> // User level events
 
   constructor () {
-    this.logger = new XulLogger() // TODO: WIP INSTANCE
+    super()
     this.messageFactory = new DiscordMessageFactory()
 
     this.underlyingEvents = new Map<CoreEventsType, (args: any) => void>()
@@ -175,38 +180,27 @@ export class DiscordChatEngineService implements IChatEngineService {
   onMessage (message: Message): void {
     this.logger.info(`bot received message: #${message.id} - from ${message.author.id}`)
 
-    if (!message.author.bot) { void message.author.send('ok::::::' + message.author.id) }
-  }
-
-  useCommands (commands: Command[]): void {
-    this.logger.warn(`Commands to use #: ${commands.length}`)
-    this.commands = commands
-  }
-
-  login (token: string): void {
-    this.logger.warn('Authenticating discord client...')
-    this.discordClient.login(token).catch((r: string) => this.logger.info(`Bot couldn't log in ${r}`)) // todo: check whatever this returns
-  }
-
-  logout (): void {
-    this.discordClient.destroy()
-  }
-
-  async handleCommand (interaction: CommandInteraction): Promise<void> {
-    const command = this.commands.find(c => c.name === interaction.commandName)
-
-    if (command == null) {
-      this.logger.error('Command not found')
-      throw new Error('Command not found')
+    if (!message.author.bot) {
+      void message.author.send('ok::::::' + message.author.id)
     }
-
-    const args: CommandCallbackArgs = { interaction, dependency: this.dependency }
-    const reply = command.callback(args)
-
-    if (reply == null) return // continue if handle has a message to send
-
-    void this.replyMessage(interaction, reply)
   }
+
+  // async handleCommand (interaction: CommandInteraction): Promise<void> {
+  //   const command = this.commands.find(c => c.name === interaction.commandName)
+  //
+  //   if (command == null) {
+  //     this.logger.error('Command not found')
+  //     throw new Error('Command not found')
+  //   }
+  //
+  //   const args: CommandCallbackArgs = { interaction, dependency: this.applicationContext }
+  //   const reply = command.callback(args)
+  //
+  //   // todo: send default confirmation message to avoid discord timeout
+  //   if (reply == null) return // continue if handle has a message to send
+  //
+  //   void this.replyMessage(interaction, reply)
+  // }
 
   async replyMessage (origin: CommandInteraction | RepliableInteraction, message: cMessage): Promise<void> {
     const embed = this.messageFactory.createMessage(message)
@@ -224,7 +218,7 @@ export class DiscordChatEngineService implements IChatEngineService {
 
         if (response.customId === action.name && isInteractive) {
           // TODO: Pass context to callback for further communication
-          action.actionCall({ dependency: this.dependency, context: origin })
+          action.actionCall({ dependency: this.applicationContext, context: origin })
           await origin.editReply({ components: [] })
         }
       }
@@ -233,8 +227,8 @@ export class DiscordChatEngineService implements IChatEngineService {
 
       // TODO: VERIFY IF SENDING AN EXCEPTION ACROSS ALL ACTIONS IS NEEDED
       //    | RE: We can inform the caller about errors sending message and
-      //    | receiving responses. This way cAction only represents the platforms'
-      //    | buttons and the reaction to them.
+      //    | receiving responses. This way cAction only represents the button
+      //    | from the platform and its reaction
       // for (const action of message.actions) {
       //   if (action.exception != null) {
       //     action.exception(e)
@@ -252,7 +246,7 @@ export class DiscordChatEngineService implements IChatEngineService {
   onInteractionCreate (interaction: Interaction<CacheType>): void {
     this.logger.warn(`Interaction received: ${interaction.id}`)
     if (interaction.isCommand()) {
-      void this.handleCommand(interaction)
+      void this.handleCommand(interaction.commandName, interaction)
     }
   }
 
@@ -278,22 +272,46 @@ export class DiscordChatEngineService implements IChatEngineService {
     }
   }
 
-  // IService
-  init (dependency: DependencyManager): void {
-    // Get logger and boot config
-    this.dependency = dependency
-    this.bootConfig = dependency.getConfiguration()
-    this.logger = this.bootConfig.logger
+  init (applicationContext: ApplicationContext): symbol {
+    const initCheck = super.init(applicationContext)
 
     // Register core events
     this.registerEvents()
     // Initialize discord listeners
     this.initializeDiscordListeners()
 
-    // Bot login: clientkey = process.env.BOT_TOKEN (required by discord)
-    this.discordClient.login(this.bootConfig.clientKey).catch((res: string) => {
+    if (this.configuration.commands != null) {
+      // Deploy commands
+      void this.deployCommands(this.configuration.commands)
+    }
+
+    this.discordClient.login(this.configuration.discordClientKey).catch((res: string) => {
       this.logger.error(`Bot couldn't log in: ${res}`)
     })
+
+    return initCheck
+  }
+
+  async deployCommands (commands: Command[]): Promise<void> {
+    try {
+      assertDiscordProperties(this.configuration)
+      this.logger.info('Starting to deploy application commands.')
+
+      this.commands.push(...commands)
+      const deployCommands = commands?.map((cmd) => {
+        return buildDiscordSlashCommand(cmd).toJSON()
+      })
+
+      const rest = new REST({ version: '8' }).setToken(this.configuration.discordClientKey)
+      await rest.put(Routes.applicationGuildCommands(this.configuration.discordClientId, this.configuration.discordServerId),
+        { body: deployCommands })
+
+      this.logger.info('Successfully reloaded application (/) commands.')
+    } catch (error) {
+      let message = 'Unknown'
+      if (error instanceof Error) message = error.message
+      this.logger.error(`Cannot deploy commands due: ${message}`)
+    }
   }
 
   async dispose (): Promise<void> {
