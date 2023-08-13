@@ -20,7 +20,7 @@
     "@discordjs/rest": "^1.7.1",
     "axios": "^1.4.0",
     "cors": "^2.8.5",
-    "discord.js": "^14.11.0",
+    "discord.js": "^14.12.1",
     "dotenv": "^16.3.1",
     "express": "^4.17.1",
     "express-jwt": "^8.4.1",
