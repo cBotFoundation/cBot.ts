@@ -25,9 +25,9 @@
     "express": "^4.17.1",
     "express-jwt": "^8.4.1",
     "googleapis": "^122.0.0",
+    "grammy": "^1.17.2",
     "log4js": "^6.9.1",
     "mongoose": "^7.3.4",
-    "telegraf": "^4.12.2",
     "ts-node": "^10.9.1",
     "zod": "^3.21.4"
   },

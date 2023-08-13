@@ -6,7 +6,8 @@ const ENV_VARS = z.object({
   RUN_COMMAND_DEPLOYER: z.string(),
   DISCORD_CLIENT_ID: z.string(),
   DISCORD_GUILD_ID: z.string(),
-  DISCORD_BOT_TOKEN: z.string()
+  DISCORD_BOT_TOKEN: z.string(),
+  TELEGRAM_TOKEN: z.string()
 })
 
 ENV_VARS.parse(process.env)

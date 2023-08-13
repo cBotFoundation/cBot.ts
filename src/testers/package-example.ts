@@ -35,19 +35,20 @@ export function ReadmeHelloWorld (): void {
   }
 
   const helloWorldCommand: Command = {
-    name: 'hello-world',
+    name: 'hello',
     description: 'hello world command description :)',
     arguments: [], // No arguments for this example...
     callback: helloWorldCommandHandler
   }
 
   const mockCBootConfig: cBootConfig = {
-    botImplementations: ['DiscordImplementation'],
+    botImplementations: ['DiscordImplementation', 'TelegramImplementation'],
     port: 8080,
     freshDeploy: true,
     discordClientKey: process.env.DISCORD_BOT_TOKEN,
     discordClientId: process.env.DISCORD_CLIENT_ID,
     discordServerId: process.env.DISCORD_GUILD_ID,
+    telegramToken: process.env.TELEGRAM_TOKEN,
     commands: [helloWorldCommand], // Fill with actual dummy Commands
     logger: myLogger
   }
