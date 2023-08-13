@@ -185,23 +185,6 @@ export class DiscordChatEngineService extends ChatEngineService {
     }
   }
 
-  // async handleCommand (interaction: CommandInteraction): Promise<void> {
-  //   const command = this.commands.find(c => c.name === interaction.commandName)
-  //
-  //   if (command == null) {
-  //     this.logger.error('Command not found')
-  //     throw new Error('Command not found')
-  //   }
-  //
-  //   const args: CommandCallbackArgs = { interaction, dependency: this.applicationContext }
-  //   const reply = command.callback(args)
-  //
-  //   // todo: send default confirmation message to avoid discord timeout
-  //   if (reply == null) return // continue if handle has a message to send
-  //
-  //   void this.replyMessage(interaction, reply)
-  // }
-
   async replyMessage (origin: CommandInteraction | RepliableInteraction, message: cMessage): Promise<void> {
     const embed = this.messageFactory.createMessage(message)
     const pendingResponse = await origin.reply(embed) // todo: check if reply fails
@@ -218,23 +201,12 @@ export class DiscordChatEngineService extends ChatEngineService {
 
         if (response.customId === action.name && isInteractive) {
           // TODO: Pass context to callback for further communication
-          action.actionCall({ dependency: this.applicationContext, context: origin })
+          action.actionCall({ appContext: this.applicationContext, chatContext: origin })
           await origin.editReply({ components: [] })
         }
       }
     } catch (e) {
       this.logger.error('Pending response exception:')
-
-      // TODO: VERIFY IF SENDING AN EXCEPTION ACROSS ALL ACTIONS IS NEEDED
-      //    | RE: We can inform the caller about errors sending message and
-      //    | receiving responses. This way cAction only represents the button
-      //    | from the platform and its reaction
-      // for (const action of message.actions) {
-      //   if (action.exception != null) {
-      //     action.exception(e)
-      //   }
-      // }
-
       await origin.editReply({ components: [], content: 'timeout...' })
     }
   }

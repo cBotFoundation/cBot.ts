@@ -55,20 +55,4 @@ export default class TelegramChatEngineService extends ChatEngineService {
     })
     this.logger.info('SUCCESSFULLY DEPLOYED COMMANDS ON TELEGRAM')
   }
-
-  async handleCommand (commandName: string, interaction: PlatformCommandContext): Promise<void> {
-    const command = this.commands.find(c => c.name === commandName)
-
-    if (command == null) {
-      this.logger.error('Command not found')
-      throw new Error('Command not found')
-    }
-
-    const args: CommandCallbackArgs = { interaction, dependency: this.applicationContext }
-    const reply = command.callback(args)
-
-    if (reply == null) return // continue if handle has a message to send
-
-    void this.replyMessage(interaction, reply)
-  }
 }
