@@ -29,7 +29,7 @@
     "log4js": "^6.9.1",
     "mongoose": "^7.4.2",
     "ts-node": "^10.9.1",
-    "zod": "^3.21.4"
+    "zod": "^3.22.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
