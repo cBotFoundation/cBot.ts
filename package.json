@@ -25,7 +25,7 @@
     "express": "^4.17.1",
     "express-jwt": "^8.4.1",
     "googleapis": "^124.0.0",
-    "grammy": "^1.17.2",
+    "grammy": "^1.19.0",
     "log4js": "^6.9.1",
     "mongoose": "^7.4.2",
     "ts-node": "^10.9.1",
